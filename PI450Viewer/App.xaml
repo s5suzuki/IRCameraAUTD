@@ -1,0 +1,14 @@
+﻿<Application
+    x:Class="PI450Viewer.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <system:Double x:Key="DragMargin">8.0</system:Double>
+        <system:Double x:Key="InitX">197.0</system:Double>
+        <system:Double x:Key="InitY">144.0</system:Double>
+        <system:Double x:Key="Width">382.0</system:Double>
+        <system:Double x:Key="Height">288.0</system:Double>
+    </Application.Resources>
+</Application>
