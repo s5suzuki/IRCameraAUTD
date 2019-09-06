@@ -26,6 +26,8 @@ namespace PI450Viewer
         private int _mesureDataNum = 0;
         private bool _mesureing = false;
 
+        string _tmppath;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -148,43 +150,19 @@ namespace PI450Viewer
 
         private void SaveData(ushort[,] data)
         {
-
             long now = DateTime.Now.Ticks;
             lock (_lock)
             {
-                while (File.Exists("temp\\" + now + ".bin"))
+                while (File.Exists(_tmppath + "\\" + now + ".bin"))
                 {
                     now++;
                 }
             }
 
-            using (FileStream fs = new FileStream("temp\\" + now + ".bin", FileMode.Create, FileAccess.Write))
+            using (FileStream fs = new FileStream(_tmppath + "\\" + now + ".bin", FileMode.Create, FileAccess.Write))
             {
                 BinaryFormatter bf = new BinaryFormatter();
                 bf.Serialize(fs, data);
-            }
-        }
-
-        private static void FormatToCSV(StreamWriter sw, string file)
-        {
-            using (FileStream fis = new FileStream(file, FileMode.Open, FileAccess.Read))
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                ushort[,] data = bf.Deserialize(fis) as ushort[,];
-
-                sw.Write(file.Split('.', '\\')[1]);
-
-                for (int i = 0; i < data.GetLength(0); i++)
-                {
-                    for (int j = 0; j < data.GetLength(1); j++)
-                    {
-                        sw.Write("," + ThermalPlotViewModel.ConvertToTemp(data[i, j]));
-                    }
-
-                    sw.Write(", ");
-                }
-
-                sw.WriteLine();
             }
         }
 
@@ -306,70 +284,30 @@ namespace PI450Viewer
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog sfd = new SaveFileDialog
-            {
-                FileName = "data.csv",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                Filter = "CSVファイル(*.csv)|*.csv",
-                FilterIndex = 1,
-                Title = "保存先のファイルを選択してください",
-                RestoreDirectory = true,
-                OverwritePrompt = true,
-                CheckPathExists = true
-            };
-
-            if (sfd.ShowDialog() == true)
-            {
-                _data.Path = sfd.FileName;
-            }
-        }
 
         private void Button_Click_Finish(object sender, RoutedEventArgs e)
         {
             _mesureing = false;
             DEBUG.Text = "Stop Mesure.";
 
-            if (!Directory.Exists("temp"))
+            if (!Directory.Exists(_tmppath))
             {
                 return;
             }
-
-            Task.Run(async () =>
-            {
-                await Task.WhenAll(_tasks);
-                _tasks.Clear();
-
-                using (StreamWriter sw = new StreamWriter(_data.Path))
-                {
-                    int c = 0;
-                    foreach (string file in Directory.EnumerateFiles("temp"))
-                    {
-                        FormatToCSV(sw, file);
-                        Dispatcher.Invoke(() => DEBUG.Text = $"Write to CSV {++c}/{_mesureDataNum}");
-                    }
-                }
-                //if (Directory.Exists("temp")) Directory.Delete("temp", true);
-            });
         }
 
         private void Button_Click_Start(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(_data.Path))
-            {
-                if (!Directory.Exists("temp"))
-                {
-                    Directory.CreateDirectory("temp");
-                }
+            var now = DateTime.Now;
+            _tmppath = now.ToString("yyyyMMddHHmmss");
 
-                _mesureing = true;
-                DEBUG.Text = "Start Mesure.";
-            }
-            else
+            if (!Directory.Exists(_tmppath))
             {
-                DEBUG.Text = "Select file save path.";
+                Directory.CreateDirectory(_tmppath);
             }
+
+            _mesureing = true;
+            DEBUG.Text = "Start Mesure.";
         }
     }
 }

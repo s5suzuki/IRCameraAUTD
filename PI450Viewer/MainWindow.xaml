@@ -290,14 +290,6 @@
                             Text="{Binding AverageTempTotal}" />
                     </Grid>
                 </StackPanel>
-                <StackPanel
-                    Margin="10,10"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Orientation="Horizontal">
-                    <TextBox Width="300" Text="{Binding Path}" />
-                    <Button Click="Button_Click" Content="Save Path" />
-                </StackPanel>
 
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button
