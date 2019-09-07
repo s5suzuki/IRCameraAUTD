@@ -300,6 +300,10 @@
                         Margin="10,10"
                         Click="Button_Click_Finish"
                         Content="Finish" />
+                    <Button
+                        Margin="10,10"
+                        Click="Button_Click_Convert"
+                        Content="Convert to CSV" />
                 </StackPanel>
                 <TextBlock x:Name="DEBUG" TextAlignment="Right" />
             </StackPanel>

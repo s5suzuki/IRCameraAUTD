@@ -1,11 +1,13 @@
 ﻿using LibirimagerSharp;
-using Microsoft.Win32;
 using OxyPlot.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,10 +25,8 @@ namespace PI450Viewer
         private double _margin;
 
         private ThermalPlotViewModel _data;
-        private int _mesureDataNum = 0;
         private bool _mesureing = false;
-
-        string _tmppath;
+        private string _tmppath;
 
         public MainWindow()
         {
@@ -126,7 +126,6 @@ namespace PI450Viewer
                             SaveData(images.ThermalImage);
                         });
                         _tasks.Add(task);
-                        _mesureDataNum++;
                     }
 
                     Dispatcher.Invoke(() =>
@@ -284,21 +283,57 @@ namespace PI450Viewer
             }
         }
 
-
-        private void Button_Click_Finish(object sender, RoutedEventArgs e)
+        private static void FormatToCSV(StreamWriter sw, string file)
         {
-            _mesureing = false;
-            DEBUG.Text = "Stop Mesure.";
+            using (FileStream fis = new FileStream(file, FileMode.Open, FileAccess.Read))
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                ushort[,] data = bf.Deserialize(fis) as ushort[,];
 
-            if (!Directory.Exists(_tmppath))
+                var sb = new StringBuilder();
+
+                for (int i = 0; i < data.GetLength(0); i++)
+                {
+                    for (int j = 0; j < data.GetLength(1); j++)
+                    {
+                        if (j == 0)
+                        {
+                            sb.Append(ThermalPlotViewModel.ConvertToTemp(data[i, j]));
+                        }
+                        else
+                        {
+                            sb.Append("," + ThermalPlotViewModel.ConvertToTemp(data[i, j]));
+                        }
+                    }
+                    sb.AppendLine();
+                }
+
+                sw.Write(sb.ToString());
+            }
+        }
+
+        private async void Button_Click_Finish(object sender, RoutedEventArgs e)
+        {
+            if (!_mesureing)
             {
                 return;
             }
+
+            await Task.WhenAll(_tasks);
+            _tasks.Clear();
+
+            _mesureing = false;
+            DEBUG.Text = "Stop Mesure.";
         }
 
         private void Button_Click_Start(object sender, RoutedEventArgs e)
         {
-            var now = DateTime.Now;
+            if (_mesureing)
+            {
+                DEBUG.Text = "WARNING: Stop Mesure First!";
+                return;
+            }
+            DateTime now = DateTime.Now;
             _tmppath = now.ToString("yyyyMMddHHmmss");
 
             if (!Directory.Exists(_tmppath))
@@ -308,6 +343,56 @@ namespace PI450Viewer
 
             _mesureing = true;
             DEBUG.Text = "Start Mesure.";
+        }
+
+        private void Button_Click_Convert(object sender, RoutedEventArgs e)
+        {
+            if (_mesureing)
+            {
+                DEBUG.Text = "WARNING: Stop Mesure First!";
+                return;
+            }
+
+            using (System.Windows.Forms.FolderBrowserDialog dlg = new System.Windows.Forms.FolderBrowserDialog
+            {
+                Description = "Choose folder contains binary data files.",
+                SelectedPath = System.Windows.Forms.Application.StartupPath
+
+            })
+            {
+                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    Task.Run(async () =>
+                    {
+
+                        var writeTasks = new List<Task>();
+
+                        int c = 0;
+                        IEnumerable<string> binaries = Directory.EnumerateFiles(dlg.SelectedPath).Where(name => name.Split('.').LastOrDefault() == "bin");
+                        int count = binaries.Count();
+                        foreach (string file in binaries)
+                        {
+                            var writeTask = Task.Run(() =>
+                            {
+                                string path = file.Substring(0, file.Length - 3) + "csv";
+
+                                using (StreamWriter sw = new StreamWriter(path, append: false))
+                                {
+                                    FormatToCSV(sw, file);
+
+                                    Interlocked.Increment(ref c);
+                                    Dispatcher.Invoke(() => DEBUG.Text = $"Writing to CSV {c}/{count}");
+                                }
+                            });
+                            writeTasks.Add(writeTask);
+                        }
+
+                        await Task.WhenAll(writeTasks);
+
+                        Dispatcher.Invoke(() => DEBUG.Text = $"Completed to write {count} CSV files.");
+                    });
+                }
+            }
         }
     }
 }
