@@ -4,7 +4,7 @@
  * Created Date: 29/03/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 03/06/2021
+ * Last Modified: 24/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -79,10 +79,10 @@ namespace PI450Viewer
 
         public MainWindowViewModel()
         {
-            Dictionary<string, Page> pageCache = new Dictionary<string, Page>();
-
             Model = new MainWindowModel();
             Page = Model.ToReactivePropertyAsSynchronized(m => m.Page);
+
+            Dictionary<string, Page> pageCache = new Dictionary<string, Page> { { "PI450Viewer.Views.Home", Page.Value } };
 
             TransitPage = new ReactiveCommand<string>();
             TransitPage.Subscribe(page =>
@@ -91,15 +91,14 @@ namespace PI450Viewer
                 Page.Value = pageCache[page]!;
             });
 
-            //var currentDark = true;
             ToggleTheme = new ReactiveCommand();
             ToggleTheme.Subscribe(() =>
                 {
-                    //currentDark = !currentDark;
                     PaletteHelper paletteHelper = new PaletteHelper();
                     ITheme theme = paletteHelper.GetTheme();
-                    theme.SetBaseTheme(theme.GetBaseTheme() == BaseTheme.Dark ? Theme.Light : Theme.Dark);
-                    //theme.SetBaseTheme(currentDark ? Theme.Dark : Theme.Light);
+                    var baseTheme = theme.GetBaseTheme() == BaseTheme.Dark ? Theme.Light : Theme.Dark;
+                    theme.SetBaseTheme(baseTheme);
+                    General.Instance.BaseTheme.Value = baseTheme;
                     paletteHelper.SetTheme(theme);
                 }
             );

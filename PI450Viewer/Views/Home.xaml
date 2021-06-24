@@ -4,8 +4,8 @@
     Created Date: 29/03/2021
     Author: Shun Suzuki
     =====
-Last Modified: 23/06/2021
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+    Last Modified: 23/06/2021
+    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     =====
     Copyright (c) 2021 Hapis Lab. All rights reserved.
 -->
@@ -14,9 +14,9 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     x:Class="PI450Viewer.Views.Home"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:converter="clr-namespace:PI450Viewer.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:helpers="clr-namespace:PI450Viewer.Helpers"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:oxy="http://oxyplot.org/wpf"
     xmlns:viewModels="clr-namespace:PI450Viewer.ViewModels"
@@ -29,10 +29,8 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     </Page.DataContext>
 
     <Page.Resources>
-        <helpers:BindingProxy x:Key="MaterialDesignBodyProxy" Data="{DynamicResource MaterialDesignBody}" />
-        <converter:BrushToColorConverter x:Key="BrushToColorConverter" />
+        <converter:BitmapToImageSource x:Key="BitmapConverter" />
     </Page.Resources>
-
 
     <Grid Margin="12">
         <Grid.RowDefinitions>
@@ -56,11 +54,31 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                 Width="{StaticResource ThermalImageWidth}"
                 Height="{StaticResource ThermalImageHeight}"
                 Margin="20,20">
-                <Image x:Name="ThermalImage" />
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="MouseMove">
+                        <b:InvokeCommandAction Command="{Binding ThermalImageMouseMove}" PassEventArgsToCommand="True" />
+                    </b:EventTrigger>
+                    <b:EventTrigger EventName="MouseRightButtonUp">
+                        <b:InvokeCommandAction Command="{Binding ThermalImageMouseRightUp}" />
+                    </b:EventTrigger>
+                    <b:EventTrigger EventName="MouseRightButtonDown">
+                        <b:InvokeCommandAction Command="{Binding ThermalImageMouseRightDown}" />
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
+                <Image
+                    x:Name="ThermalImage"
+                    Width="{StaticResource ThermalImageWidth}"
+                    Height="{StaticResource ThermalImageHeight}"
+                    Source="{Binding PaletteImage.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BitmapConverter}}" />
                 <Thumb
                     Canvas.Left="0"
                     Canvas.Top="{StaticResource ThermalImageCursorInitY}"
                     Background="{x:Null}">
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="DragDelta">
+                            <b:InvokeCommandAction Command="{Binding CursorXDragDelta}" PassEventArgsToCommand="True" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                     <Thumb.Template>
                         <ControlTemplate>
                             <StackPanel Orientation="Vertical">
@@ -84,6 +102,11 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                     </Thumb.Template>
                 </Thumb>
                 <Thumb Canvas.Left="{StaticResource ThermalImageCursorInitX}" Canvas.Top="0">
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="DragDelta">
+                            <b:InvokeCommandAction Command="{Binding CursorYDragDelta}" PassEventArgsToCommand="True" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                     <Thumb.Template>
                         <ControlTemplate>
                             <StackPanel Orientation="Horizontal">
@@ -106,7 +129,15 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </ControlTemplate>
                     </Thumb.Template>
                 </Thumb>
-                <TextBlock Background="White" Visibility="Hidden" />
+                <TextBlock
+                    Background="White"
+                    Foreground="Black"
+                    Text="{Binding ThermalAtCursor.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                    Visibility="{Binding ThermalAtCursorVisible.Value}">
+                    <TextBlock.RenderTransform>
+                        <TranslateTransform X="{Binding ThermalAtCursorX.Value}" Y="{Binding ThermalAtCursorY.Value}" />
+                    </TextBlock.RenderTransform>
+                </TextBlock>
             </Canvas>
             <StackPanel
                 Grid.Row="1"
@@ -115,32 +146,11 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                 Height="auto"
                 Margin="20,20"
                 Orientation="Vertical">
-                <oxy:Plot
-                    x:Name="PlotX"
+                <oxy:PlotView
                     Width="{StaticResource ThermalImageWidth}"
                     Height="200"
                     Background="{x:Null}"
-                    PlotAreaBorderColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}">
-                    <oxy:Plot.Axes>
-                        <oxy:LinearAxis
-                            AxislineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MajorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MinorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            Position="Left"
-                            TextColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            TicklineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}" />
-                        <oxy:LinearAxis
-                            AxislineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MajorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MinorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            Position="Bottom"
-                            TextColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            TicklineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}" />
-                    </oxy:Plot.Axes>
-                    <oxy:Plot.Series>
-                        <oxy:LineSeries ItemsSource="{Binding XAxis.Value}" />
-                    </oxy:Plot.Series>
-                </oxy:Plot>
+                    Model="{Binding PlotXModel.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="X-Axis" />
                     <Grid Margin="2,2">
@@ -150,7 +160,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="Max temp. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding MaxTempX.Value}" />
+                        <TextBlock Grid.Column="1" Text="{Binding MaxTempX.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                     <Grid Margin="2,2">
                         <Grid.ColumnDefinitions>
@@ -159,7 +169,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="Min temp. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding MinTempX.Value}" />
+                        <TextBlock Grid.Column="1" Text="{Binding MinTempX.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                     <Grid Margin="2,2">
                         <Grid.ColumnDefinitions>
@@ -168,7 +178,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="Avg. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding AverageTempX.Value}" />
+                        <TextBlock Grid.Column="1" Text="{Binding AverageTempX.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
 
                 </StackPanel>
@@ -181,43 +191,23 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                 Height="{StaticResource ThermalImageHeight}"
                 Margin="20,20"
                 Orientation="Horizontal">
-                <oxy:Plot
-                    x:Name="PlotY"
+                <oxy:PlotView
                     Width="{StaticResource ThermalImageHeight}"
                     Height="200"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Background="{x:Null}"
-                    PlotAreaBorderColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
+                    Model="{Binding PlotYModel.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                     RenderTransformOrigin="0,0">
-                    <oxy:Plot.Axes>
-                        <oxy:LinearAxis
-                            AxislineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MajorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MinorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            Position="Left"
-                            TextColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            TicklineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}" />
-                        <oxy:LinearAxis
-                            AxislineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MajorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            MinorGridlineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            Position="Bottom"
-                            TextColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}"
-                            TicklineColor="{Binding Source={StaticResource MaterialDesignBodyProxy}, Path=Data, Converter={StaticResource BrushToColorConverter}}" />
-                    </oxy:Plot.Axes>
-                    <oxy:Plot.RenderTransform>
+                    <oxy:PlotView.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform />
                             <SkewTransform />
                             <RotateTransform Angle="-90" />
                             <TranslateTransform Y="{StaticResource ThermalImageHeight}" />
                         </TransformGroup>
-                    </oxy:Plot.RenderTransform>
-                    <oxy:Plot.Series>
-                        <oxy:LineSeries ItemsSource="{Binding YAxis.Value}" />
-                    </oxy:Plot.Series>
-                </oxy:Plot>
+                    </oxy:PlotView.RenderTransform>
+                </oxy:PlotView>
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="Y-Axis" />
                     <Grid Margin="2,2">
@@ -227,7 +217,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="Max temp. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding MaxTempY.Value}" />
+                        <TextBlock Grid.Column="1" Text="{Binding MaxTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                     <Grid Margin="2,2">
                         <Grid.ColumnDefinitions>
@@ -236,7 +226,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="Min temp. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding MinTempY.Value}" />
+                        <TextBlock Grid.Column="1" Text="{Binding MinTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                     <Grid Margin="2,2">
                         <Grid.ColumnDefinitions>
@@ -245,7 +235,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="Avg. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding AverageTempY.Value}" />
+                        <TextBlock Grid.Column="1" Text="{Binding AverageTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
 
                 </StackPanel>
@@ -269,7 +259,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         <TextBlock
                             x:Name="MaxTemp"
                             Grid.Column="1"
-                            Text="{Binding MaxTempTotal.Value}" />
+                            Text="{Binding MaxTempTotal.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                     <Grid Margin="2,2">
                         <Grid.ColumnDefinitions>
@@ -281,7 +271,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         <TextBlock
                             x:Name="MinTemp"
                             Grid.Column="1"
-                            Text="{Binding MinTempTotal.Value}" />
+                            Text="{Binding MinTempTotal.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                     <Grid Margin="2,2">
                         <Grid.ColumnDefinitions>
@@ -293,18 +283,20 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         <TextBlock
                             x:Name="AvgTemp"
                             Grid.Column="1"
-                            Text="{Binding AverageTempTotal.Value}" />
+                            Text="{Binding AverageTempTotal.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </StackPanel>
 
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button
                         Margin="10,10"
-                        Content="Start"
+                        Command="{Binding Connect}"
+                        Content="Connect"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                     <Button
                         Margin="10,10"
-                        Content="Finish"
+                        Command="{Binding Disconnect}"
+                        Content="Disconnect"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                     <Button
                         Margin="10,10"

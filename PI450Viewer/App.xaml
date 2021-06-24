@@ -39,7 +39,7 @@
             <sys:Double x:Key="ActionButtonSize">24</sys:Double>
             <sys:Double x:Key="MenuExpandWidth">132</sys:Double>
             <sys:Double x:Key="ThermalImageDragMargin">8.0</sys:Double>
-            <sys:Double x:Key="ThermalImageCursorInitX">197.0</sys:Double>
+            <sys:Double x:Key="ThermalImageCursorInitX">191.0</sys:Double>
             <sys:Double x:Key="ThermalImageCursorInitY">144.0</sys:Double>
             <sys:Double x:Key="ThermalImageWidth">382.0</sys:Double>
             <sys:Double x:Key="ThermalImageHeight">288.0</sys:Double>

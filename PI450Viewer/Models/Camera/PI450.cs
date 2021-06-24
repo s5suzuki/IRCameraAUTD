@@ -3,7 +3,7 @@ using libirimagerNet;
 
 namespace PI450Viewer.Models.Camera
 {
-    public class PI450 : ICamera
+    public class Pi450 : ICamera
     {
         public void SetPaletteFormat(OptrisColoringPalette coloring, OptrisPaletteScalingMethod scaling)
         {

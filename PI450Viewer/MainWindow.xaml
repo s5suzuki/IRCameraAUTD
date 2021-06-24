@@ -126,7 +126,7 @@
                             BorderBrush="{x:Null}"
                             Command="{Binding TransitPage}"
                             CommandParameter="PI450Viewer.Views.Home"
-                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                            Style="{StaticResource MaterialDesignRaisedButton}" Cursor="Hand" />
                     </Grid>
                     <Grid Grid.Row="1">
                         <materialDesign:PackIcon

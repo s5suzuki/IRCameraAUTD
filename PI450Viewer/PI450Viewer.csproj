@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -13,6 +13,7 @@
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
     <PackageReference Include="MaterialDesignExtensions" Version="3.3.0" />
     <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.31" />
     <PackageReference Include="OxyPlot.Wpf" Version="2.0.0" />
     <PackageReference Include="ReactiveProperty" Version="7.11.0" />
   </ItemGroup>
