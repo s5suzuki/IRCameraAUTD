@@ -1,312 +1,426 @@
-﻿<Window
+﻿<!--
+    File: MainWindow.xaml
+    Project: PI450Viewer
+    Created Date: 29/03/2021
+    Author: Shun Suzuki
+    =====
+    Last Modified: 23/06/2021
+    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+    =====
+    Copyright (c) 2021 Hapis Lab. All rights reserved.
+-->
+
+<Window
     x:Class="PI450Viewer.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PI450Viewer"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:oxy="http://oxyplot.org/wpf"
     Title="MainWindow"
-    SizeToContent="WidthAndHeight"
+    Width="980"
+    Height="760"
+    Background="{DynamicResource MaterialDesignPaper}"
+    FontFamily="{DynamicResource MaterialDesignFont}"
+    Initialized="Window_Initialized"
+    MouseLeftButtonDown="Window_MouseLeftButtonDown"
+    ResizeMode="CanResize"
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
     mc:Ignorable="d">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" />
+    </WindowChrome.WindowChrome>
+
     <Window.DataContext>
-        <local:ThermalPlotViewModel />
+        <local:MainWindowViewModel />
     </Window.DataContext>
 
+    <Window.Resources>
+        <Storyboard x:Key="OpenMenu">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MenuPanel" Storyboard.TargetProperty="Width">
+                <EasingDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource MenuExpandWidth}" />
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="CloseMenu">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="MenuPanel" Storyboard.TargetProperty="Width">
+                <EasingDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource MenuIconContainerSize}" />
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
+
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
-
+        <materialDesign:DialogHost Identifier="MessageDialogHost" />
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Menu>
-                <MenuItem Header="ファイル(_F)" />
-                <MenuItem Header="オプション(_O)">
-                    <MenuItem
-                        x:Name="PalleteOption"
-                        Click="PalleteOption_Click"
-                        Header="Pallete" />
-                    <MenuItem
-                        x:Name="ScalingOption"
-                        Click="ScalingOption_Click"
-                        Header="Scaling" />
-                </MenuItem>
-            </Menu>
-        </Grid>
-
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-
-            <Canvas
-                Grid.Row="0"
+            <Grid
+                x:Name="MenuPanel"
                 Grid.Column="0"
-                Width="{StaticResource Width}"
-                Height="{StaticResource Height}"
-                Margin="20,20"
-                MouseMove="ThermalImage_MouseMove"
-                MouseRightButtonDown="ThermalImage_MouseRightButtonDown"
-                MouseRightButtonUp="ThermalImage_MouseRightButtonUp">
-                <Image x:Name="ThermalImage" />
-                <Thumb
-                    x:Name="HorizontalLine"
-                    Canvas.Left="0"
-                    Canvas.Top="{StaticResource InitY}"
-                    Background="{x:Null}"
-                    DragDelta="Thumb_DragDelta_Horizontal">
-                    <Thumb.Template>
-                        <ControlTemplate>
-                            <StackPanel Orientation="Vertical">
-                                <Rectangle
-                                    Width="{StaticResource Width}"
-                                    Height="{StaticResource DragMargin}"
-                                    Fill="#00000000" />
-                                <Line
-                                    Stroke="Blue"
-                                    StrokeThickness="1"
-                                    X1="0"
-                                    X2="{StaticResource Width}"
-                                    Y1="0"
-                                    Y2="0" />
-                                <Rectangle
-                                    Width="{StaticResource Width}"
-                                    Height="{StaticResource DragMargin}"
-                                    Fill="#00000000" />
-                            </StackPanel>
-                        </ControlTemplate>
-                    </Thumb.Template>
-                </Thumb>
-                <Thumb
-                    x:Name="VericalLine"
-                    Canvas.Left="{StaticResource InitX}"
-                    Canvas.Top="0"
-                    DragDelta="Thumb_DragDelta_Vertical">
-                    <Thumb.Template>
-                        <ControlTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Rectangle
-                                    Width="{StaticResource DragMargin}"
-                                    Height="{StaticResource Height}"
-                                    Fill="#00000000" />
-                                <Line
-                                    Stroke="Blue"
-                                    StrokeThickness="1"
-                                    X1="0"
-                                    X2="0"
-                                    Y1="0"
-                                    Y2="{StaticResource Height}" />
-                                <Rectangle
-                                    Width="{StaticResource DragMargin}"
-                                    Height="{StaticResource Height}"
-                                    Fill="#00000000" />
-                            </StackPanel>
-                        </ControlTemplate>
-                    </Thumb.Template>
-                </Thumb>
-                <TextBlock
-                    x:Name="ThemalAtCursor"
-                    Background="White"
-                    Visibility="Hidden" />
-            </Canvas>
-
-            <StackPanel
-                Grid.Row="1"
-                Grid.Column="0"
-                Width="{StaticResource Width}"
-                Height="auto"
-                Margin="20,20"
-                Orientation="Vertical">
-                <oxy:Plot
-                    x:Name="PlotX"
-                    Width="{StaticResource Width}"
-                    Height="200">
-                    <oxy:Plot.Series>
-                        <oxy:LineSeries ItemsSource="{Binding XAxis}" />
-                    </oxy:Plot.Series>
-                </oxy:Plot>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="X-Axis" />
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Max temp. [℃]" />
-                        <TextBlock
-                            x:Name="xMaxTemp"
-                            Grid.Column="1"
-                            Text="{Binding MaxTempX}" />
-                    </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Min temp. [℃]" />
-                        <TextBlock
-                            x:Name="xMinTemp"
-                            Grid.Column="1"
-                            Text="{Binding MinTempX}" />
-                    </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Avg. [℃]" />
-                        <TextBlock
-                            x:Name="xAvgTemp"
-                            Grid.Column="1"
-                            Text="{Binding AverageTempX}" />
-                    </Grid>
-
-                </StackPanel>
-            </StackPanel>
-
-            <StackPanel
-                Grid.Row="0"
-                Grid.Column="1"
-                Width="auto"
-                Height="{StaticResource Height}"
-                Margin="20,20"
-                Orientation="Horizontal">
-                <oxy:Plot
-                    x:Name="PlotY"
-                    Width="{StaticResource Height}"
-                    Height="200"
+                Width="{StaticResource MenuIconContainerSize}"
+                RenderTransformOrigin="0.5,0.5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ToggleButton
+                    Grid.Row="0"
+                    Width="{StaticResource MenuIconContainerSize}"
+                    Height="{StaticResource MenuIconContainerSize}"
+                    Padding="0"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    RenderTransformOrigin="0,0">
-                    <oxy:Plot.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform />
-                            <SkewTransform />
-                            <RotateTransform Angle="-90" />
-                            <TranslateTransform Y="{StaticResource Height}" />
-                        </TransformGroup>
-                    </oxy:Plot.RenderTransform>
-                    <oxy:Plot.Series>
-                        <oxy:LineSeries ItemsSource="{Binding YAxis}" />
-                    </oxy:Plot.Series>
-                </oxy:Plot>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Y-Axis" />
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Max temp. [℃]" />
+                    Background="{x:Null}"
+                    BorderBrush="{x:Null}"
+                    Cursor="Hand"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}">
+                    <materialDesign:PackIcon
+                        Width="{StaticResource MenuIconSize}"
+                        Height="{StaticResource MenuIconSize}"
+                        VerticalAlignment="Center"
+                        Kind="Menu" />
+                    <ToggleButton.Triggers>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard Storyboard="{StaticResource OpenMenu}" />
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard Storyboard="{StaticResource CloseMenu}" />
+                        </EventTrigger>
+                    </ToggleButton.Triggers>
+                </ToggleButton>
+                <Grid
+                    Grid.Row="1"
+                    Background="{x:Null}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <materialDesign:PackIcon
+                            Width="{StaticResource MenuIconSize}"
+                            Height="{StaticResource MenuIconSize}"
+                            Margin="{StaticResource MenuIconMargin}"
+                            VerticalAlignment="Center"
+                            Kind="Home" />
                         <TextBlock
-                            x:Name="yMaxTemp"
-                            Grid.Column="1"
-                            Text="{Binding MaxTempY}" />
+                            Padding="{StaticResource MenuIconPadding}"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Home" />
+                        <Button
+                            Width="{StaticResource MenuExpandWidth}"
+                            Height="{StaticResource MenuIconContainerSize}"
+                            HorizontalContentAlignment="Left"
+                            materialDesign:ButtonAssist.CornerRadius="0"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            Command="{Binding TransitPage}"
+                            CommandParameter="PI450Viewer.Views.Home"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                     </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Min temp. [℃]" />
+                    <Grid Grid.Row="1">
+                        <materialDesign:PackIcon
+                            Width="{StaticResource MenuIconSize}"
+                            Height="{StaticResource MenuIconSize}"
+                            Margin="{StaticResource MenuIconMargin}"
+                            VerticalAlignment="Center"
+                            Kind="ViewGridOutline" />
                         <TextBlock
-                            x:Name="yMinTemp"
-                            Grid.Column="1"
-                            Text="{Binding MinTempY}" />
+                            Padding="{StaticResource MenuIconPadding}"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Geometry" />
+                        <Button
+                            Width="{StaticResource MenuExpandWidth}"
+                            Height="{StaticResource MenuIconContainerSize}"
+                            HorizontalContentAlignment="Left"
+                            materialDesign:ButtonAssist.CornerRadius="0"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            Command="{Binding TransitPage}"
+                            CommandParameter="PI450Viewer.Views.Geometry"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                     </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Avg. [℃]" />
+                    <Grid Grid.Row="2">
+                        <materialDesign:PackIcon
+                            Width="{StaticResource MenuIconSize}"
+                            Height="{StaticResource MenuIconSize}"
+                            Margin="{StaticResource MenuIconMargin}"
+                            VerticalAlignment="Center"
+                            Kind="TransitConnectionVariant" />
                         <TextBlock
-                            x:Name="yAvgTemp"
-                            Grid.Column="1"
-                            Text="{Binding AverageTempY}" />
+                            Padding="{StaticResource MenuIconPadding}"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Link" />
+                        <Button
+                            Width="{StaticResource MenuExpandWidth}"
+                            Height="{StaticResource MenuIconContainerSize}"
+                            HorizontalContentAlignment="Left"
+                            materialDesign:ButtonAssist.CornerRadius="0"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            Command="{Binding TransitPage}"
+                            CommandParameter="PI450Viewer.Views.Link"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                     </Grid>
-
-                </StackPanel>
-
-            </StackPanel>
-
-            <StackPanel
-                Grid.Row="1"
-                Grid.Column="1"
-                Margin="40,40"
-                Orientation="Vertical">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Total" />
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Max temp. [℃]" />
+                    <Grid Grid.Row="3">
+                        <materialDesign:PackIcon
+                            Width="{StaticResource MenuIconSize}"
+                            Height="{StaticResource MenuIconSize}"
+                            Margin="{StaticResource MenuIconMargin}"
+                            VerticalAlignment="Center"
+                            Kind="ContactlessPayment" />
                         <TextBlock
-                            x:Name="MaxTemp"
-                            Grid.Column="1"
-                            Text="{Binding MaxTempTotal}" />
+                            Padding="{StaticResource MenuIconPadding}"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="GainSelect" />
+                        <Button
+                            Width="{StaticResource MenuExpandWidth}"
+                            Height="{StaticResource MenuIconContainerSize}"
+                            HorizontalContentAlignment="Left"
+                            materialDesign:ButtonAssist.CornerRadius="0"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            Command="{Binding TransitPage}"
+                            CommandParameter="PI450Viewer.Views.GainSelect"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                     </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Min temp. [℃]" />
+                    <Grid Grid.Row="4">
+                        <materialDesign:PackIcon
+                            Width="{StaticResource MenuIconSize}"
+                            Height="{StaticResource MenuIconSize}"
+                            Margin="4,0,0,0"
+                            VerticalAlignment="Center"
+                            Kind="SineWave" />
                         <TextBlock
-                            x:Name="MinTemp"
-                            Grid.Column="1"
-                            Text="{Binding MinTempTotal}" />
+                            Padding="{StaticResource MenuIconPadding}"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Modulation" />
+                        <Button
+                            Width="{StaticResource MenuExpandWidth}"
+                            Height="{StaticResource MenuIconContainerSize}"
+                            HorizontalContentAlignment="Left"
+                            materialDesign:ButtonAssist.CornerRadius="0"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            Command="{Binding TransitPage}"
+                            CommandParameter="PI450Viewer.Views.ModulationSelect"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                     </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Avg. [℃]" />
+                    <Grid Grid.Row="5">
+                        <materialDesign:PackIcon
+                            Width="{StaticResource MenuIconSize}"
+                            Height="{StaticResource MenuIconSize}"
+                            Margin="4,0,0,0"
+                            VerticalAlignment="Center"
+                            Kind="TimerOutline" />
                         <TextBlock
-                            x:Name="AvgTemp"
-                            Grid.Column="1"
-                            Text="{Binding AverageTempTotal}" />
+                            Padding="{StaticResource MenuIconPadding}"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Sequence" />
+                        <Button
+                            Width="{StaticResource MenuExpandWidth}"
+                            Height="{StaticResource MenuIconContainerSize}"
+                            HorizontalContentAlignment="Left"
+                            materialDesign:ButtonAssist.CornerRadius="0"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            Command="{Binding TransitPage}"
+                            CommandParameter="PI450Viewer.Views.Seq"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                     </Grid>
-                </StackPanel>
-
-                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Grid Grid.Row="6">
+                        <materialDesign:PackIcon
+                            Width="{StaticResource MenuIconSize}"
+                            Height="{StaticResource MenuIconSize}"
+                            Margin="{StaticResource MenuIconMargin}"
+                            VerticalAlignment="Center"
+                            Kind="Settings" />
+                        <TextBlock
+                            Padding="{StaticResource MenuIconPadding}"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Settings" />
+                        <Button
+                            Width="{StaticResource MenuExpandWidth}"
+                            Height="{StaticResource MenuIconContainerSize}"
+                            HorizontalContentAlignment="Left"
+                            materialDesign:ButtonAssist.CornerRadius="0"
+                            Background="{x:Null}"
+                            BorderBrush="{x:Null}"
+                            Command="{Binding TransitPage}"
+                            CommandParameter="PI450Viewer.Views.Settings"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="2" VerticalAlignment="Bottom">
+                    <materialDesign:PackIcon
+                        Width="{StaticResource MenuIconSize}"
+                        Height="{StaticResource MenuIconSize}"
+                        Margin="{StaticResource MenuIconMargin}"
+                        VerticalAlignment="Center"
+                        Kind="Github" />
+                    <TextBlock
+                        Padding="{StaticResource MenuIconPadding}"
+                        VerticalAlignment="Center"
+                        FontSize="{StaticResource FontSize}"
+                        Text="Github" />
                     <Button
-                        Margin="10,10"
-                        Click="Button_Click_Start"
-                        Content="Start" />
-                    <Button
-                        Margin="10,10"
-                        Click="Button_Click_Finish"
-                        Content="Finish" />
-                    <Button
-                        Margin="10,10"
-                        Click="Button_Click_Convert"
-                        Content="Convert to CSV" />
-                </StackPanel>
-                <TextBlock x:Name="DEBUG" TextAlignment="Right" />
-            </StackPanel>
+                        Width="{StaticResource MenuExpandWidth}"
+                        Height="{StaticResource MenuIconContainerSize}"
+                        HorizontalContentAlignment="Left"
+                        materialDesign:ButtonAssist.CornerRadius="0"
+                        Background="{x:Null}"
+                        BorderBrush="{x:Null}"
+                        Command="{Binding OpenUrl}"
+                        CommandParameter="https://github.com/shinolab/AUTD3-GUI-Controller"
+                        Style="{StaticResource MaterialDesignRaisedButton}" />
+                </Grid>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" VerticalAlignment="Top">
+                    <StackPanel
+                        Grid.Column="0"
+                        Margin="12,0,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Orientation="Horizontal">
+                        <Grid>
+                            <materialDesign:PackIcon
+                                Width="{StaticResource MenuIconSize}"
+                                Height="{StaticResource MenuIconSize}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Kind="ContentSave" />
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding Save}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                        </Grid>
+                        <Grid>
+                            <materialDesign:PackIcon
+                                Width="{StaticResource MenuIconSize}"
+                                Height="{StaticResource MenuIconSize}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Kind="FolderOpen" />
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding Load}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                        </Grid>
+                        <Grid>
+                            <materialDesign:PackIcon
+                                Width="{StaticResource MenuIconSize}"
+                                Height="{StaticResource MenuIconSize}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Kind="PlayArrow" />
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding Start}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                        </Grid>
+                        <Grid>
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding Stop}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                            <materialDesign:PackIcon
+                                Width="{StaticResource MenuIconSize}"
+                                Height="{StaticResource MenuIconSize}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Kind="Pause" />
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Orientation="Horizontal">
+                        <Grid>
+                            <materialDesign:PackIcon
+                                Width="{StaticResource MenuIconSize}"
+                                Height="{StaticResource MenuIconSize}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Kind="ThemeLightDark" />
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding ToggleTheme}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                        </Grid>
+                        <Grid>
+                            <materialDesign:PackIcon
+                                Width="{StaticResource MenuIconSize}"
+                                Height="{StaticResource MenuIconSize}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Kind="Settings" />
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding TransitPage}"
+                                CommandParameter="PI450Viewer.Views.Settings"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                        </Grid>
+                        <Grid>
+                            <materialDesign:PackIcon
+                                Width="{StaticResource MenuIconSize}"
+                                Height="{StaticResource MenuIconSize}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Kind="Power" />
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding ButtonPower}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+                <Frame
+                    Grid.Row="1"
+                    Content="{Binding Page.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    NavigationUIVisibility="Hidden" />
+            </Grid>
         </Grid>
     </Grid>
 

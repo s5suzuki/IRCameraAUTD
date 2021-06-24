@@ -1,398 +1,218 @@
-﻿using LibirimagerSharp;
-using OxyPlot.Wpf;
+﻿/*
+ * File: MainWindow.xaml.cs
+ * Project: PI450Viewer
+ * Created Date: 29/03/2021
+ * Author: Shun Suzuki
+ * -----
+ * Last Modified: 03/06/2021
+ * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+ * -----
+ * Copyright (c) 2021 Hapis Lab. All rights reserved.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading;
+using System.Diagnostics;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using PI450Viewer.Domain;
+using PI450Viewer.Helpers;
+using PI450Viewer.Models;
+using PI450Viewer.Views;
+using MaterialDesignExtensions.Controls;
+using MaterialDesignThemes.Wpf;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace PI450Viewer
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
-        private static readonly int ImageWidth = (int)(double)App.Current.Resources["Width"];
-        private static readonly int ImageHeight = (int)(double)App.Current.Resources["Height"];
-
-        private IRDirectInterface _irDirectInterface;
-        private readonly bool _grabImages = true;
-        private double _margin;
-
-        private ThermalPlotViewModel _data;
-        private bool _mesureing = false;
-        private string _tmppath;
-
         public MainWindow()
         {
             InitializeComponent();
-            InitializeThermoCamera();
-            InitializeParameters();
-
-            ClearMargin(PlotX, OxyPlot.Axes.AxisPosition.Right);
-            ClearMargin(PlotY, OxyPlot.Axes.AxisPosition.Left);
-
-            foreach (string palleteOption in Enum.GetNames(typeof(OptrisColoringPalette)))
-            {
-                MenuItem item = new MenuItem() { Header = palleteOption, IsCheckable = true };
-                if (palleteOption == "Iron")
-                {
-                    item.IsChecked = true;
-                }
-
-                PalleteOption.Items.Add(item);
-            }
-            foreach (string scalingOption in Enum.GetNames(typeof(OptrisPaletteScalingMethod)))
-            {
-                MenuItem item = new MenuItem() { Header = scalingOption, IsCheckable = true };
-                if (scalingOption == "MinMax")
-                {
-                    item.IsChecked = true;
-                }
-
-                if (scalingOption == "Manual")
-                {
-                    item.IsEnabled = false;
-                }
-
-                ScalingOption.Items.Add(item);
-            }
         }
 
-        private static void ClearMargin(Plot plot, OxyPlot.Axes.AxisPosition pos)
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            plot.PlotMargins = new Thickness(0, 0, 0, 20);
-            plot.Padding = new Thickness(0, 0, 0, 20);
-            plot.TitleFontSize = 0;
-            plot.SubtitleFontSize = 0;
-            plot.TitlePadding = 0;
-            plot.BorderThickness = new Thickness(0, 0, 0, 0);
-            plot.PlotAreaBorderThickness = new Thickness(0, 0, 0, 0);
-
-            plot.Axes.Clear();
-            plot.UpdateLayout();
-
-            plot.Axes.Add(new LinearAxis() { IsAxisVisible = true, Position = pos, MinimumRange = 0.0, AbsoluteMinimum = 0, Minimum = 0.0 });
-            plot.Axes.Add(new LinearAxis() { IsAxisVisible = false, Position = OxyPlot.Axes.AxisPosition.Bottom });
+            DragMove();
         }
 
-        private void InitializeParameters()
-        {
-            _data = new ThermalPlotViewModel();
-            DataContext = _data;
-
-            _margin = (double)App.Current.Resources["DragMargin"];
-            _data.ViewX = (int)(double)App.Current.Resources["InitX"];
-            _data.ViewY = (int)(double)App.Current.Resources["InitY"];
-        }
-
-        public void InitializeThermoCamera()
+        private void Window_Initialized(object sender, EventArgs e)
         {
             try
             {
-                _irDirectInterface = IRDirectInterface.Instance;
-                _irDirectInterface.Connect("generic.xml");
+                SettingManager.LoadSetting("settings.json");
             }
-            catch (IOException ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message, "ERROR");
-                Close();
+                // ignore
             }
+        }
+    }
 
-            Task.Run(() =>
+    public class MainWindowModel : ReactivePropertyBase
+    {
+        public Page Page { get; set; } = new Home();
+    }
+
+    public class MainWindowViewModel : ReactivePropertyBase
+    {
+        public ReactiveProperty<Page> Page { get; }
+
+        public ReactiveCommand<string> TransitPage { get; }
+        public ReactiveCommand ToggleTheme { get; }
+        public AsyncReactiveCommand ButtonPower { get; }
+        public ReactiveCommand<string> OpenUrl { get; }
+
+        public AsyncReactiveCommand Save { get; }
+        public AsyncReactiveCommand Load { get; }
+
+        public AsyncReactiveCommand Start { get; }
+        public ReactiveCommand Stop { get; }
+
+        private MainWindowModel Model { get; }
+
+        public MainWindowViewModel()
+        {
+            Dictionary<string, Page> pageCache = new Dictionary<string, Page>();
+
+            Model = new MainWindowModel();
+            Page = Model.ToReactivePropertyAsSynchronized(m => m.Page);
+
+            TransitPage = new ReactiveCommand<string>();
+            TransitPage.Subscribe(page =>
             {
-                ImageGrabberMethode();
+                if (!pageCache.ContainsKey(page)) pageCache.Add(page, (Page)Activator.CreateInstance(null!, page)?.Unwrap()!);
+                Page.Value = pageCache[page]!;
             });
 
-        }
+            //var currentDark = true;
+            ToggleTheme = new ReactiveCommand();
+            ToggleTheme.Subscribe(() =>
+                {
+                    //currentDark = !currentDark;
+                    PaletteHelper paletteHelper = new PaletteHelper();
+                    ITheme theme = paletteHelper.GetTheme();
+                    theme.SetBaseTheme(theme.GetBaseTheme() == BaseTheme.Dark ? Theme.Light : Theme.Dark);
+                    //theme.SetBaseTheme(currentDark ? Theme.Dark : Theme.Light);
+                    paletteHelper.SetTheme(theme);
+                }
+            );
 
-        private void ImageGrabberMethode()
-        {
-            while (_grabImages)
+            ButtonPower = new AsyncReactiveCommand();
+            ButtonPower.Subscribe(async _ =>
             {
+                var vm = new ConfirmDialogViewModel { Message = { Value = "Are you sure to quit the application?" } };
+                var dialog = new ConfirmDialog
+                {
+                    DataContext = vm
+                };
+                var res = await DialogHost.Show(dialog, "MessageDialogHost");
+                if (res is bool quit && quit)
+                {
+                    AUTDHandler.Instance.Dispose();
+                    SettingManager.SaveSetting("settings.json");
+                    Application.Current.Shutdown();
+                }
+            });
+
+            OpenUrl = new ReactiveCommand<string>();
+            OpenUrl.Subscribe(url =>
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            });
+
+            Save = new AsyncReactiveCommand();
+            Save.Subscribe(async _ =>
+            {
+                var dialogArgs = new SaveFileDialogArguments
+                {
+                    Width = 600,
+                    Height = 800,
+                    Filters = "json files|*.json",
+                    ForceFileExtensionOfFileFilter = true,
+                    CreateNewDirectoryEnabled = true
+                };
+                var result = await SaveFileDialog.ShowDialogAsync("MessageDialogHost", dialogArgs);
+                if (result.Canceled) return;
                 try
                 {
-                    ThermalPaletteImage images = _irDirectInterface.ThermalPaletteImage;
-
-                    if (_mesureing)
-                    {
-                        Task task = Task.Run(() =>
-                        {
-                            SaveData(images.ThermalImage);
-                        });
-                        _tasks.Add(task);
-                    }
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        ThermalImage.Source = images.PaletteImage;
-                        _data.ThermalData = images.ThermalImage;
-                        PlotX.InvalidatePlot(true);
-                        PlotY.InvalidatePlot(true);
-                    });
-
+                    SettingManager.SaveSetting(result.File);
                 }
-                catch (IOException ex)
+                catch
                 {
-                    MessageBox.Show(ex.Message, "ERROR");
+                    var vm = new ErrorDialogViewModel { Message = { Value = "Failed to save settings." } };
+                    var dialog = new ErrorDialog
+                    {
+                        DataContext = vm
+                    };
+                    await DialogHost.Show(dialog, "MessageDialogHost");
                 }
-            }
-        }
+            });
 
-        private readonly object _lock = new object();
-        private readonly List<Task> _tasks = new List<Task>();
-
-        private void SaveData(ushort[,] data)
-        {
-            long now = DateTime.Now.Ticks;
-            lock (_lock)
+            Load = new AsyncReactiveCommand();
+            Load.Subscribe(async _ =>
             {
-                while (File.Exists(_tmppath + "\\" + now + ".bin"))
+                var dialogArgs = new OpenFileDialogArguments
                 {
-                    now++;
+                    Width = 600,
+                    Height = 800,
+                    Filters = "json files|*.json"
+                };
+                var result = await OpenFileDialog.ShowDialogAsync("MessageDialogHost", dialogArgs);
+                if (result.Canceled) return;
+                try
+                {
+                    SettingManager.LoadSetting(result.File);
                 }
-            }
-
-            using (FileStream fs = new FileStream(_tmppath + "\\" + now + ".bin", FileMode.Create, FileAccess.Write))
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                bf.Serialize(fs, data);
-            }
-        }
-
-        private void Thumb_DragDelta_Horizontal(object sender, DragDeltaEventArgs e)
-        {
-            Thumb thumb = e.Source as Thumb;
-            int y = (int)Clamp(Canvas.GetTop(thumb) + e.VerticalChange + _margin, 0, ImageHeight - 1);
-            Canvas.SetTop(thumb, y - _margin);
-
-            _data.ViewY = y;
-            PlotX.InvalidatePlot(true);
-        }
-
-        private void Thumb_DragDelta_Vertical(object sender, DragDeltaEventArgs e)
-        {
-            Thumb thumb = e.Source as Thumb;
-            int x = (int)Clamp(Canvas.GetLeft(thumb) + e.HorizontalChange + _margin, 0, ImageWidth - 1);
-
-            Canvas.SetLeft(thumb, x - _margin);
-
-            _data.ViewX = x;
-            PlotY.InvalidatePlot(true);
-        }
-
-        private static double Clamp(double value, double min, double max)
-        {
-            return value < min ? min : max < value ? max : value;
-        }
-
-        private void ThermalImage_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            ThemalAtCursor.Visibility = Visibility.Visible;
-        }
-
-        private void ThermalImage_MouseRightButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            ThemalAtCursor.Visibility = Visibility.Hidden;
-        }
-
-        private void ThermalImage_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            Point p = e.GetPosition(ThermalImage);
-            Canvas.SetLeft(ThemalAtCursor, p.X + 5);
-            Canvas.SetTop(ThemalAtCursor, p.Y - 10);
-
-            int x = (int)Clamp(p.X, 0, ImageWidth - 1);
-            int y = (int)Clamp(p.Y, 0, ImageHeight - 1);
-
-            ThemalAtCursor.Text = ThermalPlotViewModel.ConvertToTemp(_data.ThermalData[y, x]).ToString("00.0", CultureInfo.InvariantCulture) + "℃";
-        }
-
-        private void PalleteOption_Click(object sender, RoutedEventArgs e)
-        {
-            if (e.Source is MenuItem check)
-            {
-                if (check.IsChecked)
+                catch
                 {
-                    foreach (MenuItem item in PalleteOption.Items)
+                    var vm = new ErrorDialogViewModel { Message = { Value = "Failed to load settings." } };
+                    var dialog = new ErrorDialog
                     {
-                        if (item != check)
-                        {
-                            item.IsChecked = false;
-                        }
-                    }
+                        DataContext = vm
+                    };
+                    await DialogHost.Show(dialog, "MessageDialogHost");
+                }
+            });
 
-                    OptrisPaletteScalingMethod scaling = OptrisPaletteScalingMethod.None;
-                    foreach (MenuItem item in ScalingOption.Items)
+            Start = AUTDHandler.Instance.IsRunning.Select(x => !x).ToAsyncReactiveCommand();
+            Start.Subscribe(async _ =>
+            {
+                if (!AUTDHandler.Instance.IsOpen.Value)
+                {
+                    var res = await Task.Run(() => AUTDHandler.Instance.Open());
+                    if (res != null)
                     {
-                        if (item.IsChecked)
+                        var vm = new ErrorDialogViewModel { Message = { Value = $"Failed to open AUTD: {res}.\nSee Link options." } };
+                        var dialog = new ErrorDialog
                         {
-                            scaling = (OptrisPaletteScalingMethod)Enum.Parse(typeof(OptrisPaletteScalingMethod), item.Header.ToString());
-                        }
-                    }
-
-                    if (Enum.TryParse(check.Header.ToString(), out OptrisColoringPalette value))
-                    {
-                        _irDirectInterface.SetPaletteFormat(value, scaling);
+                            DataContext = vm
+                        };
+                        await DialogHost.Show(dialog, "MessageDialogHost");
+                        return;
                     }
                 }
-                else
-                {
-                    check.IsChecked = true;
-                }
-            }
-        }
 
-        private void ScalingOption_Click(object sender, RoutedEventArgs e)
-        {
-            if (e.Source is MenuItem check)
+                AUTDHandler.Instance.SendGain();
+                AUTDHandler.Instance.SendModulation();
+
+            });
+            Stop = AUTDHandler.Instance.IsRunning.Select(x => x).ToReactiveCommand();
+            Stop.Subscribe(_ =>
             {
-                if (check.IsChecked)
-                {
-                    OptrisColoringPalette pallete = OptrisColoringPalette.None;
-                    foreach (MenuItem item in PalleteOption.Items)
-                    {
-                        if (item.IsChecked)
-                        {
-                            pallete = (OptrisColoringPalette)Enum.Parse(typeof(OptrisColoringPalette), item.Header.ToString());
-                        }
-                    }
-
-                    foreach (MenuItem item in ScalingOption.Items)
-                    {
-                        if (item != check)
-                        {
-                            item.IsChecked = false;
-                        }
-                    }
-
-                    if (Enum.TryParse(check.Header.ToString(), out OptrisPaletteScalingMethod value))
-                    {
-                        _irDirectInterface.SetPaletteFormat(pallete, value);
-                    }
-                }
-                else
-                {
-                    check.IsChecked = true;
-                }
-            }
-        }
-
-        private static void FormatToCSV(StreamWriter sw, string file)
-        {
-            using (FileStream fis = new FileStream(file, FileMode.Open, FileAccess.Read))
-            {
-                BinaryFormatter bf = new BinaryFormatter();
-                ushort[,] data = bf.Deserialize(fis) as ushort[,];
-
-                var sb = new StringBuilder();
-
-                for (int i = 0; i < data.GetLength(0); i++)
-                {
-                    for (int j = 0; j < data.GetLength(1); j++)
-                    {
-                        if (j == 0)
-                        {
-                            sb.Append(ThermalPlotViewModel.ConvertToTemp(data[i, j]));
-                        }
-                        else
-                        {
-                            sb.Append("," + ThermalPlotViewModel.ConvertToTemp(data[i, j]));
-                        }
-                    }
-                    sb.AppendLine();
-                }
-
-                sw.Write(sb.ToString());
-            }
-        }
-
-        private async void Button_Click_Finish(object sender, RoutedEventArgs e)
-        {
-            if (!_mesureing)
-            {
-                return;
-            }
-
-            await Task.WhenAll(_tasks);
-            _tasks.Clear();
-
-            _mesureing = false;
-            DEBUG.Text = "Stop Mesure.";
-        }
-
-        private void Button_Click_Start(object sender, RoutedEventArgs e)
-        {
-            if (_mesureing)
-            {
-                DEBUG.Text = "WARNING: Stop Mesure First!";
-                return;
-            }
-            DateTime now = DateTime.Now;
-            _tmppath = now.ToString("yyyyMMddHHmmss");
-
-            if (!Directory.Exists(_tmppath))
-            {
-                Directory.CreateDirectory(_tmppath);
-            }
-
-            _mesureing = true;
-            DEBUG.Text = "Start Mesure.";
-        }
-
-        private void Button_Click_Convert(object sender, RoutedEventArgs e)
-        {
-            if (_mesureing)
-            {
-                DEBUG.Text = "WARNING: Stop Mesure First!";
-                return;
-            }
-
-            using (System.Windows.Forms.FolderBrowserDialog dlg = new System.Windows.Forms.FolderBrowserDialog
-            {
-                Description = "Choose folder contains binary data files.",
-                SelectedPath = System.Windows.Forms.Application.StartupPath
-
-            })
-            {
-                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    Task.Run(async () =>
-                    {
-
-                        var writeTasks = new List<Task>();
-
-                        int c = 0;
-                        IEnumerable<string> binaries = Directory.EnumerateFiles(dlg.SelectedPath).Where(name => name.Split('.').LastOrDefault() == "bin");
-                        int count = binaries.Count();
-                        foreach (string file in binaries)
-                        {
-                            var writeTask = Task.Run(() =>
-                            {
-                                string path = file.Substring(0, file.Length - 3) + "csv";
-
-                                using (StreamWriter sw = new StreamWriter(path, append: false))
-                                {
-                                    FormatToCSV(sw, file);
-
-                                    Interlocked.Increment(ref c);
-                                    Dispatcher.Invoke(() => DEBUG.Text = $"Writing to CSV {c}/{count}");
-                                }
-                            });
-                            writeTasks.Add(writeTask);
-                        }
-
-                        await Task.WhenAll(writeTasks);
-
-                        Dispatcher.Invoke(() => DEBUG.Text = $"Completed to write {count} CSV files.");
-                    });
-                }
-            }
+                AUTDHandler.Instance.Stop();
+            });
         }
     }
 }
