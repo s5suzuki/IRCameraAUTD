@@ -10,6 +10,7 @@ using PI450Viewer.Domain;
 using PI450Viewer.Helpers;
 using PI450Viewer.Models.Camera;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace PI450Viewer.Models
 {
@@ -60,7 +61,7 @@ namespace PI450Viewer.Models
             SetPlotAxes(OxyColors.White);
 
             ReactiveProperty<IBaseTheme> baseTheme = General.Instance.BaseTheme;
-            baseTheme.Subscribe(t => { SetPlotAxes(t == Theme.Dark ? OxyColors.White : OxyColors.Black); });
+            baseTheme.Subscribe(t => { SetPlotAxes(t == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black); });
 
             PaletteImage = new ReactiveProperty<Bitmap>(new Bitmap(ImageWidth, ImageHeight));
 

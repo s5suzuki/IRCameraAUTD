@@ -4,7 +4,7 @@
  * Created Date: 29/03/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 05/06/2021
+ * Last Modified: 24/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -12,6 +12,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 using PI450Viewer.Helpers;
@@ -154,6 +155,28 @@ namespace PI450Viewer.Models
             GeometriesReactive = new ObservableCollectionWithItemNotify<GeometrySettingReactive>();
             Geometries = null;
             LinkSelected = LinkSelect.SOEM;
+        }
+
+        internal void Store()
+        {
+            Instance.Geometries = Instance.GeometriesReactive.Select(g => new GeometrySetting(g)).ToArray();
+            Instance.Holo.HoloSettings = Instance.Holo.HoloSettingsReactive.Select(s => new HoloSetting(s)).ToArray();
+            Instance.Seq.Points = Instance.Seq.PointsReactive.Select(s => s.ToVector3()).ToArray();
+        }
+
+        internal void Load()
+        {
+            Instance.GeometriesReactive = new ObservableCollectionWithItemNotify<GeometrySettingReactive>();
+            if (Instance.Geometries == null) return;
+            foreach (var geometry in Instance.Geometries) Instance.GeometriesReactive.Add(new GeometrySettingReactive(geometry));
+
+            Instance.Holo.HoloSettingsReactive = new ObservableCollectionWithItemNotify<HoloSettingReactive>();
+            if (Instance.Holo.HoloSettings == null) return;
+            foreach (var s in Instance.Holo.HoloSettings) Instance.Holo.HoloSettingsReactive.Add(new HoloSettingReactive(s));
+
+            Instance.Seq.PointsReactive = new ObservableCollectionWithItemNotify<Vector3Reactive>();
+            if (Instance.Seq.Points == null) return;
+            foreach (var (s, i) in Instance.Seq.Points.Select((s, i) => (s, i))) Instance.Seq.PointsReactive.Add(new Vector3Reactive(i, s));
         }
     }
 }

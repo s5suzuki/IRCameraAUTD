@@ -41,18 +41,6 @@ namespace PI450Viewer
         {
             DragMove();
         }
-
-        private void Window_Initialized(object sender, EventArgs e)
-        {
-            try
-            {
-                SettingManager.LoadSetting("settings.json");
-            }
-            catch (Exception)
-            {
-                // ignore
-            }
-        }
     }
 
     public class MainWindowModel : ReactivePropertyBase
@@ -96,7 +84,7 @@ namespace PI450Viewer
                 {
                     PaletteHelper paletteHelper = new PaletteHelper();
                     ITheme theme = paletteHelper.GetTheme();
-                    var baseTheme = theme.GetBaseTheme() == BaseTheme.Dark ? Theme.Light : Theme.Dark;
+                    var baseTheme = theme.GetBaseTheme() == BaseTheme.Dark ? MaterialDesignThemes.Wpf.Theme.Light : MaterialDesignThemes.Wpf.Theme.Dark;
                     theme.SetBaseTheme(baseTheme);
                     General.Instance.BaseTheme.Value = baseTheme;
                     paletteHelper.SetTheme(theme);

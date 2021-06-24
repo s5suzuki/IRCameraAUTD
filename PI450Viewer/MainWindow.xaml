@@ -23,7 +23,6 @@
     Height="760"
     Background="{DynamicResource MaterialDesignPaper}"
     FontFamily="{DynamicResource MaterialDesignFont}"
-    Initialized="Window_Initialized"
     MouseLeftButtonDown="Window_MouseLeftButtonDown"
     ResizeMode="CanResize"
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -62,6 +61,7 @@
                 x:Name="MenuPanel"
                 Grid.Column="0"
                 Width="{StaticResource MenuIconContainerSize}"
+                Background="{StaticResource PrimaryHueMidBrush}"
                 RenderTransformOrigin="0.5,0.5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -77,6 +77,7 @@
                     Background="{x:Null}"
                     BorderBrush="{x:Null}"
                     Cursor="Hand"
+                    Foreground="White"
                     Style="{StaticResource MaterialDesignToolForegroundButton}">
                     <materialDesign:PackIcon
                         Width="{StaticResource MenuIconSize}"
@@ -94,7 +95,7 @@
                 </ToggleButton>
                 <Grid
                     Grid.Row="1"
-                    Background="{x:Null}"
+                    Background="{StaticResource PrimaryHueMidBrush}"
                     ScrollViewer.HorizontalScrollBarVisibility="Hidden">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -111,11 +112,13 @@
                             Height="{StaticResource MenuIconSize}"
                             Margin="{StaticResource MenuIconMargin}"
                             VerticalAlignment="Center"
+                            Foreground="White"
                             Kind="Home" />
                         <TextBlock
                             Padding="{StaticResource MenuIconPadding}"
                             VerticalAlignment="Center"
                             FontSize="{StaticResource FontSize}"
+                            Foreground="White"
                             Text="Home" />
                         <Button
                             Width="{StaticResource MenuExpandWidth}"
@@ -126,7 +129,8 @@
                             BorderBrush="{x:Null}"
                             Command="{Binding TransitPage}"
                             CommandParameter="PI450Viewer.Views.Home"
-                            Style="{StaticResource MaterialDesignRaisedButton}" Cursor="Hand" />
+                            Cursor="Hand"
+                            Style="{StaticResource MaterialDesignRaisedButton}" />
                     </Grid>
                     <Grid Grid.Row="1">
                         <materialDesign:PackIcon
@@ -134,11 +138,13 @@
                             Height="{StaticResource MenuIconSize}"
                             Margin="{StaticResource MenuIconMargin}"
                             VerticalAlignment="Center"
+                            Foreground="White"
                             Kind="ViewGridOutline" />
                         <TextBlock
                             Padding="{StaticResource MenuIconPadding}"
                             VerticalAlignment="Center"
                             FontSize="{StaticResource FontSize}"
+                            Foreground="White"
                             Text="Geometry" />
                         <Button
                             Width="{StaticResource MenuExpandWidth}"
@@ -157,11 +163,13 @@
                             Height="{StaticResource MenuIconSize}"
                             Margin="{StaticResource MenuIconMargin}"
                             VerticalAlignment="Center"
+                            Foreground="White"
                             Kind="TransitConnectionVariant" />
                         <TextBlock
                             Padding="{StaticResource MenuIconPadding}"
                             VerticalAlignment="Center"
                             FontSize="{StaticResource FontSize}"
+                            Foreground="White"
                             Text="Link" />
                         <Button
                             Width="{StaticResource MenuExpandWidth}"
@@ -180,11 +188,13 @@
                             Height="{StaticResource MenuIconSize}"
                             Margin="{StaticResource MenuIconMargin}"
                             VerticalAlignment="Center"
+                            Foreground="White"
                             Kind="ContactlessPayment" />
                         <TextBlock
                             Padding="{StaticResource MenuIconPadding}"
                             VerticalAlignment="Center"
                             FontSize="{StaticResource FontSize}"
+                            Foreground="White"
                             Text="GainSelect" />
                         <Button
                             Width="{StaticResource MenuExpandWidth}"
@@ -203,11 +213,13 @@
                             Height="{StaticResource MenuIconSize}"
                             Margin="4,0,0,0"
                             VerticalAlignment="Center"
+                            Foreground="White"
                             Kind="SineWave" />
                         <TextBlock
                             Padding="{StaticResource MenuIconPadding}"
                             VerticalAlignment="Center"
                             FontSize="{StaticResource FontSize}"
+                            Foreground="White"
                             Text="Modulation" />
                         <Button
                             Width="{StaticResource MenuExpandWidth}"
@@ -226,11 +238,13 @@
                             Height="{StaticResource MenuIconSize}"
                             Margin="4,0,0,0"
                             VerticalAlignment="Center"
+                            Foreground="White"
                             Kind="TimerOutline" />
                         <TextBlock
                             Padding="{StaticResource MenuIconPadding}"
                             VerticalAlignment="Center"
                             FontSize="{StaticResource FontSize}"
+                            Foreground="White"
                             Text="Sequence" />
                         <Button
                             Width="{StaticResource MenuExpandWidth}"
@@ -249,11 +263,13 @@
                             Height="{StaticResource MenuIconSize}"
                             Margin="{StaticResource MenuIconMargin}"
                             VerticalAlignment="Center"
+                            Foreground="White"
                             Kind="Settings" />
                         <TextBlock
                             Padding="{StaticResource MenuIconPadding}"
                             VerticalAlignment="Center"
                             FontSize="{StaticResource FontSize}"
+                            Foreground="White"
                             Text="Settings" />
                         <Button
                             Width="{StaticResource MenuExpandWidth}"
@@ -273,11 +289,13 @@
                         Height="{StaticResource MenuIconSize}"
                         Margin="{StaticResource MenuIconMargin}"
                         VerticalAlignment="Center"
+                        Foreground="White"
                         Kind="Github" />
                     <TextBlock
                         Padding="{StaticResource MenuIconPadding}"
                         VerticalAlignment="Center"
                         FontSize="{StaticResource FontSize}"
+                        Foreground="White"
                         Text="Github" />
                     <Button
                         Width="{StaticResource MenuExpandWidth}"
@@ -287,16 +305,21 @@
                         Background="{x:Null}"
                         BorderBrush="{x:Null}"
                         Command="{Binding OpenUrl}"
-                        CommandParameter="https://github.com/shinolab/AUTD3-GUI-Controller"
+                        CommandParameter="https://gitlab.hapislab.org/suzuki/pi450viewer"
+                        Cursor="Hand"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                 </Grid>
             </Grid>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20.835" />
+                    <RowDefinition Height="19.165" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" VerticalAlignment="Top">
+                <Grid
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                    VerticalAlignment="Top">
                     <StackPanel
                         Grid.Column="0"
                         Margin="12,0,0,0"
@@ -417,7 +440,7 @@
                     </StackPanel>
                 </Grid>
                 <Frame
-                    Grid.Row="1"
+                    Grid.Row="2"
                     Content="{Binding Page.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     NavigationUIVisibility="Hidden" />
             </Grid>
