@@ -4,7 +4,7 @@
  * Created Date: 18/04/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 19/04/2021
+ * Last Modified: 24/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -44,6 +44,9 @@ namespace libirimagerNet
 
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_set_palette_scale(int scale);
+
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int evo_irimager_set_palette_manual_temp_range(float min, float max);
 
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_set_shutter_mode(int mode);

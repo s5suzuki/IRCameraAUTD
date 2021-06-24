@@ -11,13 +11,12 @@
  * 
  */
 
-using System.Drawing;
-using OxyPlot;
+using System;
 using PI450Viewer.Helpers;
 using PI450Viewer.Models;
 using Reactive.Bindings;
-using System;
-using System.Diagnostics;
+using Reactive.Bindings.Extensions;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
@@ -25,7 +24,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using Reactive.Bindings.Extensions;
+using OxyPlot;
 using Image = System.Windows.Controls.Image;
 
 namespace PI450Viewer.ViewModels
@@ -38,6 +37,10 @@ namespace PI450Viewer.ViewModels
 
         public ReactiveProperty<PlotModel> PlotXModel { get; }
         public ReactiveProperty<PlotModel> PlotYModel { get; }
+
+        public ReactiveProperty<bool> FixAxes { get; }
+        public ReactiveProperty<double> AxesMinimum { get; }
+        public ReactiveProperty<double> AxesMaximum { get; }
 
         public ReactiveProperty<double> MaxTempX { get; }
         public ReactiveProperty<double> MinTempX { get; }
@@ -94,6 +97,13 @@ namespace PI450Viewer.ViewModels
             MaxTempTotal = model.MaxTempTotal;
             MinTempTotal = model.MinTempTotal;
             AverageTempTotal = model.AverageTempTotal;
+
+            FixAxes = model.ToReactivePropertyAsSynchronized(m => m.FixAxes);
+            FixAxes.Subscribe(_ => model.SetPlotAxes());
+            AxesMinimum = model.ToReactivePropertyAsSynchronized(m => m.AxesMinimum);
+            AxesMinimum.Subscribe(_ => model.SetPlotAxes());
+            AxesMaximum = model.ToReactivePropertyAsSynchronized(m => m.AxesMaximum);
+            AxesMaximum.Subscribe(_ => model.SetPlotAxes());
 
             IsConnected = new ReactiveProperty<bool>(false);
             IsRunning = new ReactiveProperty<bool>(false);

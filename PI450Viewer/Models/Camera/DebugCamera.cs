@@ -24,7 +24,7 @@ namespace PI450Viewer.Models.Camera
         {
         }
 
-        public (Bitmap, ushort[,]) GrabImage()
+        public ThermalPaletteImage GrabImage()
         {
             const int width = 382;
             const int height = 288;
@@ -67,7 +67,7 @@ namespace PI450Viewer.Models.Camera
 
             Thread.Sleep(10);
 
-            return (image, thermal);
+            return new ThermalPaletteImage(thermal, image);
         }
     }
 }

@@ -23,6 +23,7 @@ namespace PI450Viewer.Models
         public static ThermalCameraHandler Instance { get => _lazy.Value; set => _lazy = new Lazy<ThermalCameraHandler>(() => value); }
 
         private readonly ICamera _camera;
+        private OxyColor _color;
 
         private static readonly int ImageWidth = (int)(double)Application.Current.Resources["ThermalImageWidth"];
         private static readonly int ImageHeight = (int)(double)Application.Current.Resources["ThermalImageHeight"];
@@ -49,6 +50,13 @@ namespace PI450Viewer.Models
         [DataMember]
         public double ViewX { get; set; }
 
+        [DataMember]
+        public bool FixAxes { get; set; }
+        [DataMember]
+        public double AxesMinimum { get; set; }
+        [DataMember]
+        public double AxesMaximum { get; set; }
+
         [JsonIgnore]
         public ReactiveProperty<double> MaxTempX { get; set; }
         [JsonIgnore]
@@ -74,6 +82,9 @@ namespace PI450Viewer.Models
         {
             _camera = new DebugCamera();
 
+            AxesMinimum = 0;
+            AxesMaximum = 100;
+
             ThermalData = new ushort[ImageHeight, ImageWidth];
 
             _plotX = new DataPoint[ImageWidth];
@@ -81,10 +92,12 @@ namespace PI450Viewer.Models
 
             _plotY = new DataPoint[ImageHeight];
             PlotYModel = new ReactiveProperty<PlotModel>(new PlotModel());
-            SetPlotAxes(OxyColors.White);
 
             ReactiveProperty<IBaseTheme> baseTheme = General.Instance.BaseTheme;
-            baseTheme.Subscribe(t => { SetPlotAxes(t == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black); });
+            baseTheme.Subscribe(t => { _color = t == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black; SetPlotAxes(); });
+
+            _color = baseTheme.Value == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black;
+            SetPlotAxes();
 
             PaletteImage = new ReactiveProperty<Bitmap>(new Bitmap(ImageWidth, ImageHeight));
 
@@ -99,9 +112,9 @@ namespace PI450Viewer.Models
             AverageTempTotal = new ReactiveProperty<double>();
         }
 
-        private void SetPlotAxes(OxyColor color)
+        public void SetPlotAxes()
         {
-            PlotXModel.Value.PlotAreaBorderColor = color;
+            PlotXModel.Value.PlotAreaBorderColor = _color;
             PlotXModel.Value.Axes.Clear();
             PlotXModel.Value.Axes.Add(new LinearAxis
             {
@@ -110,23 +123,25 @@ namespace PI450Viewer.Models
                 AbsoluteMaximum = ImageWidth,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
-                AxislineColor = color,
-                MajorGridlineColor = color,
-                MinorGridlineColor = color,
-                TextColor = color,
-                TicklineColor = color
+                AxislineColor = _color,
+                MajorGridlineColor = _color,
+                MinorGridlineColor = _color,
+                TextColor = _color,
+                TicklineColor = _color
             });
             PlotXModel.Value.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Left,
-                AxislineColor = color,
-                MajorGridlineColor = color,
-                MinorGridlineColor = color,
-                TextColor = color,
-                TicklineColor = color
+                Minimum = FixAxes ? AxesMinimum : double.NaN,
+                Maximum = FixAxes ? AxesMaximum : double.NaN,
+                AxislineColor = _color,
+                MajorGridlineColor = _color,
+                MinorGridlineColor = _color,
+                TextColor = _color,
+                TicklineColor = _color
             });
 
-            PlotYModel.Value.PlotAreaBorderColor = color;
+            PlotYModel.Value.PlotAreaBorderColor = _color;
             PlotYModel.Value.Axes.Clear();
             PlotYModel.Value.Axes.Add(new LinearAxis
             {
@@ -135,20 +150,22 @@ namespace PI450Viewer.Models
                 AbsoluteMaximum = ImageHeight,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
-                AxislineColor = color,
-                MajorGridlineColor = color,
-                MinorGridlineColor = color,
-                TextColor = color,
-                TicklineColor = color
+                AxislineColor = _color,
+                MajorGridlineColor = _color,
+                MinorGridlineColor = _color,
+                TextColor = _color,
+                TicklineColor = _color
             });
             PlotYModel.Value.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Left,
-                AxislineColor = color,
-                MajorGridlineColor = color,
-                MinorGridlineColor = color,
-                TextColor = color,
-                TicklineColor = color
+                AxislineColor = _color,
+                Minimum = FixAxes ? AxesMinimum : double.NaN,
+                Maximum = FixAxes ? AxesMaximum : double.NaN,
+                MajorGridlineColor = _color,
+                MinorGridlineColor = _color,
+                TextColor = _color,
+                TicklineColor = _color
             });
 
             var lineSeriesX = new LineSeries();
@@ -194,9 +211,9 @@ namespace PI450Viewer.Models
                 if (!_updateImage) continue;
                 try
                 {
-                    var (bitmap, thermal) = _camera.GrabImage();
-                    PaletteImage.Value = bitmap;
-                    ThermalData = thermal;
+                    var images = _camera.GrabImage();
+                    PaletteImage.Value = images.PaletteImage;
+                    ThermalData = images.ThermalImage;
                     Update();
                 }
                 catch (Exception ex)

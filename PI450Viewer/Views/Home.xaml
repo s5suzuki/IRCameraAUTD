@@ -4,8 +4,8 @@
     Created Date: 29/03/2021
     Author: Shun Suzuki
     =====
-Last Modified: 24/06/2021
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+    Last Modified: 24/06/2021
+    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     =====
     Copyright (c) 2021 Hapis Lab. All rights reserved.
 -->
@@ -30,6 +30,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 
     <Page.Resources>
         <converter:BitmapToImageSource x:Key="BitmapConverter" />
+        <converter:FloatToStringConverter x:Key="FloatConverter" />
     </Page.Resources>
 
     <Grid Margin="12">
@@ -208,37 +209,88 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </TransformGroup>
                     </oxy:PlotView.RenderTransform>
                 </oxy:PlotView>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Y-Axis" />
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Vertical">
+                        <TextBlock Text="Y-Axis" />
+                        <Grid Margin="2,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="60" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="Max temp. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding MaxTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Max temp. [℃]" />
+                            <TextBlock Grid.Column="1" Text="{Binding MaxTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Grid Margin="2,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="60" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="Min temp. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding MinTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </Grid>
-                    <Grid Margin="2,2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="100" />
-                            <ColumnDefinition Width="60" />
-                        </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Min temp. [℃]" />
+                            <TextBlock Grid.Column="1" Text="{Binding MinTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Grid Margin="2,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="60" />
+                            </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="Avg. [℃]" />
-                        <TextBlock Grid.Column="1" Text="{Binding AverageTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </Grid>
+                            <TextBlock Grid.Column="0" Text="Avg. [℃]" />
+                            <TextBlock Grid.Column="1" Text="{Binding AverageTempY.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
 
-                </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Vertical">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                HorizontalAlignment="Right">
+                                Fix axes:
+                            </TextBlock>
+                            <CheckBox
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                IsChecked="{Binding FixAxes.Value}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                VerticalAlignment="Center">
+                                Minimum temp.:
+                            </TextBlock>
+                            <TextBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                IsEnabled="{Binding FixAxes.Value}"
+                                Text="{Binding AxesMinimum.Value, Converter={StaticResource FloatConverter}}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                Grid.Column="0"
+                                VerticalAlignment="Center">
+                                Maximum temp.:
+                            </TextBlock>
+                            <TextBox
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                IsEnabled="{Binding FixAxes.Value}"
+                                Text="{Binding AxesMaximum.Value, Converter={StaticResource FloatConverter}}" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
 
             </StackPanel>
 

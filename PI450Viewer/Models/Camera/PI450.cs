@@ -20,10 +20,9 @@ namespace PI450Viewer.Models.Camera
             IrDirectInterface.Instance.Disconnect();
         }
 
-        public (Bitmap, ushort[,]) GrabImage()
+        public ThermalPaletteImage GrabImage()
         {
-            var images = IrDirectInterface.Instance.ThermalPaletteImage;
-            return (images.PaletteImage, images.ThermalImage);
+            return IrDirectInterface.Instance.ThermalPaletteImage;
         }
     }
 }

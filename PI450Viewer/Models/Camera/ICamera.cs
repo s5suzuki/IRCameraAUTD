@@ -8,6 +8,6 @@ namespace PI450Viewer.Models.Camera
         public void SetPaletteFormat(OptrisColoringPalette coloring, OptrisPaletteScalingMethod scaling);
         public void Connect(string xml);
         public void Disconnect();
-        public (Bitmap, ushort[,]) GrabImage();
+        public ThermalPaletteImage GrabImage();
     }
 }

@@ -4,7 +4,7 @@
  * Created Date: 18/04/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 19/04/2021
+ * Last Modified: 24/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -20,7 +20,6 @@ namespace libirimagerNet
 {
     public enum OptrisColoringPalette
     {
-        None = 0,
         AlarmBlue = 1,
         AlarmBlueHi = 2,
         GrayBw = 3,
@@ -36,7 +35,6 @@ namespace libirimagerNet
 
     public enum OptrisPaletteScalingMethod
     {
-        None = 0,
         Manual = 1,
         MinMax = 2,
         Sigma1 = 3,
@@ -116,6 +114,13 @@ namespace libirimagerNet
             CheckConnectionState();
             CheckResult(NativeMethods.evo_irimager_set_palette((int)format));
             CheckResult(NativeMethods.evo_irimager_set_palette_scale((int)scale));
+        }
+
+
+        public void SetPaletteManualRange(float min, float max)
+        {
+            CheckConnectionState();
+            CheckResult(NativeMethods.evo_irimager_set_palette_manual_temp_range(min, max));
         }
 
         private static void CheckResult(int result)
