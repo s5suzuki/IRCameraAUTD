@@ -9,8 +9,8 @@ namespace PI450Viewer.Models.Camera
 {
     public class DebugCamera : ICamera
     {
-        private int _t = 255;
-        private int _v = -1;
+        private int _t = 1000;
+        private int _v = 1;
 
         public void SetPaletteFormat(OptrisColoringPalette coloring, OptrisPaletteScalingMethod scaling)
         {
@@ -30,8 +30,8 @@ namespace PI450Viewer.Models.Camera
             const int height = 288;
 
             _t += _v;
-            if (_t < 127) _v *= -1;
-            if (_t >= 255) _v *= -1;
+            if (_t < 1000) _v *= -1;
+            if (_t >= 1300) _v *= -1;
 
             var thermal = new ushort[height, width];
             for (var i = 0; i < height; i++)

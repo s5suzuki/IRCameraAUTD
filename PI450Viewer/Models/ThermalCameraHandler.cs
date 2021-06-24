@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows;
@@ -218,17 +219,24 @@ namespace PI450Viewer.Models
             MinTempX.Value = minX;
             MinTempY.Value = minY;
 
-            PlotXModel.Value.Series.Clear();
             var seriesX = new LineSeries();
             seriesX.Points.AddRange(_plotX);
-            PlotXModel.Value.Series.Add(seriesX);
-            PlotXModel.Value.InvalidatePlot(true);
+            lock (PlotXModel.Value.SyncRoot)
+            {
+                PlotXModel.Value.Series.Clear();
+                PlotXModel.Value.Series.Add(seriesX);
+                PlotXModel.Value.InvalidatePlot(true);
+            }
 
             PlotYModel.Value.Series.Clear();
             var seriesY = new LineSeries();
             seriesY.Points.AddRange(_plotY);
-            PlotYModel.Value.Series.Add(seriesY);
-            PlotYModel.Value.InvalidatePlot(true);
+            lock (PlotYModel.Value.SyncRoot)
+            {
+                PlotYModel.Value.Series.Clear();
+                PlotYModel.Value.Series.Add(seriesY);
+                PlotYModel.Value.InvalidatePlot(true);
+            }
         }
 
         public static double ConvertToTemp(ushort data)

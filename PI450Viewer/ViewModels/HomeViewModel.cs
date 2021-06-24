@@ -18,10 +18,12 @@ using PI450Viewer.Models;
 using Reactive.Bindings;
 using System;
 using System.Globalization;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using Reactive.Bindings.Extensions;
 using Image = System.Windows.Controls.Image;
 
 namespace PI450Viewer.ViewModels
@@ -47,10 +49,12 @@ namespace PI450Viewer.ViewModels
         public ReactiveProperty<double> MinTempTotal { get; }
         public ReactiveProperty<double> AverageTempTotal { get; }
 
-        public ReactiveProperty<Bitmap> PaletteImage { get; set; }
+        public ReactiveProperty<Bitmap> PaletteImage { get; }
 
-        public ReactiveCommand Connect { get; set; }
-        public ReactiveCommand Disconnect { get; set; }
+        public ReactiveProperty<bool> IsConnected { get; }
+
+        public ReactiveCommand Connect { get; }
+        public ReactiveCommand Disconnect { get; }
 
         public ReactiveCommand<DragDeltaEventArgs> CursorYDragDelta { get; }
         public ReactiveCommand<DragDeltaEventArgs> CursorXDragDelta { get; }
@@ -83,16 +87,20 @@ namespace PI450Viewer.ViewModels
             MinTempTotal = model.MinTempTotal;
             AverageTempTotal = model.AverageTempTotal;
 
-            Connect = new ReactiveCommand();
+            IsConnected = new ReactiveProperty<bool>(false);
+
+            Connect = IsConnected.Select(b => !b).ToReactiveCommand();
             Connect.Subscribe(() =>
             {
                 model.Connect();
+                IsConnected.Value = true;
             });
 
-            Disconnect = new ReactiveCommand();
+            Disconnect = IsConnected.Select(b => b).ToReactiveCommand();
             Disconnect.Subscribe(() =>
             {
                 model.Disconnect();
+                IsConnected.Value = false;
             });
 
             CursorYDragDelta = new ReactiveCommand<DragDeltaEventArgs>();

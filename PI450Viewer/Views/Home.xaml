@@ -298,10 +298,6 @@
                         Command="{Binding Disconnect}"
                         Content="Disconnect"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
-                    <Button
-                        Margin="10,10"
-                        Content="Convert to CSV"
-                        Style="{StaticResource MaterialDesignRaisedButton}" />
                 </StackPanel>
             </StackPanel>
         </Grid>
