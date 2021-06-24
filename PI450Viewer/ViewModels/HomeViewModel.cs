@@ -17,6 +17,7 @@ using PI450Viewer.Helpers;
 using PI450Viewer.Models;
 using Reactive.Bindings;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
@@ -24,6 +25,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using Reactive.Bindings.Extensions;
 using Image = System.Windows.Controls.Image;
 
 namespace PI450Viewer.ViewModels
@@ -58,6 +60,9 @@ namespace PI450Viewer.ViewModels
         public ReactiveCommand Disconnect { get; }
         public ReactiveCommand Pause { get; }
         public ReactiveCommand Resume { get; }
+
+        public ReactiveProperty<double> CursorXPos { get; }
+        public ReactiveProperty<double> CursorYPos { get; }
 
         public ReactiveCommand<DragDeltaEventArgs> CursorYDragDelta { get; }
         public ReactiveCommand<DragDeltaEventArgs> CursorXDragDelta { get; }
@@ -122,21 +127,23 @@ namespace PI450Viewer.ViewModels
                 IsRunning.Value = true;
             });
 
+            CursorYPos = new ReactiveProperty<double>(model.ViewY - Margin);
             CursorYDragDelta = new ReactiveCommand<DragDeltaEventArgs>();
             CursorYDragDelta.Subscribe(e =>
             {
                 if (!(e.Source is Thumb thumb)) return;
                 var x = (int)Math.Clamp(Canvas.GetLeft(thumb) + e.HorizontalChange + Margin, 0, ImageWidth - 1);
-                Canvas.SetLeft(thumb, x - Margin);
+                CursorYPos.Value = x - Margin;
                 model.SetCursorX(x);
             });
 
+            CursorXPos = new ReactiveProperty<double>(model.ViewX - Margin);
             CursorXDragDelta = new ReactiveCommand<DragDeltaEventArgs>();
             CursorXDragDelta.Subscribe(e =>
             {
                 if (!(e.Source is Thumb thumb)) return;
                 var y = (int)Math.Clamp(Canvas.GetTop(thumb) + e.VerticalChange + Margin, 0, ImageHeight - 1);
-                Canvas.SetTop(thumb, y - Margin);
+                CursorXPos.Value = y - Margin;
                 model.SetCursorY(y);
             });
 

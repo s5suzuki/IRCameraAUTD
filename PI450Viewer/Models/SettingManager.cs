@@ -22,11 +22,13 @@ namespace PI450Viewer.Models
         {
             public General General { get; set; }
             public AUTDSettings AUTDSettings { get; set; }
+            public ThermalCameraHandler ThermalCameraHandler { get; set; }
 
             public TotalSetting()
             {
                 General = General.Instance;
                 AUTDSettings = AUTDSettings.Instance;
+                ThermalCameraHandler = ThermalCameraHandler.Instance;
             }
         }
 
@@ -48,6 +50,7 @@ namespace PI450Viewer.Models
             var obj = JsonSerializer.Deserialize<TotalSetting>(jsonString);
             AUTDSettings.Instance = obj.AUTDSettings;
             General.Instance = obj.General;
+            ThermalCameraHandler.Instance = obj.ThermalCameraHandler;
             AUTDSettings.Instance.Load();
             General.Instance.Load();
         }

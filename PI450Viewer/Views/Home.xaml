@@ -72,7 +72,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                     Source="{Binding PaletteImage.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BitmapConverter}}" />
                 <Thumb
                     Canvas.Left="0"
-                    Canvas.Top="{StaticResource ThermalImageCursorInitY}"
+                    Canvas.Top="{Binding CursorXPos.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                     Background="{x:Null}">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="DragDelta">
@@ -101,7 +101,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                         </ControlTemplate>
                     </Thumb.Template>
                 </Thumb>
-                <Thumb Canvas.Left="{StaticResource ThermalImageCursorInitX}" Canvas.Top="0">
+                <Thumb Canvas.Left="{Binding CursorYPos.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Canvas.Top="0">
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="DragDelta">
                             <b:InvokeCommandAction Command="{Binding CursorYDragDelta}" PassEventArgsToCommand="True" />

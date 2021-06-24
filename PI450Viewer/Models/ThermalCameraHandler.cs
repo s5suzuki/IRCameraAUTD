@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using libirimagerNet;
@@ -14,6 +16,7 @@ using Reactive.Bindings;
 
 namespace PI450Viewer.Models
 {
+    [DataContract]
     public class ThermalCameraHandler : ReactivePropertyBase
     {
         private static Lazy<ThermalCameraHandler> _lazy = new Lazy<ThermalCameraHandler>(() => new ThermalCameraHandler());
@@ -24,8 +27,12 @@ namespace PI450Viewer.Models
         private static readonly int ImageWidth = (int)(double)Application.Current.Resources["ThermalImageWidth"];
         private static readonly int ImageHeight = (int)(double)Application.Current.Resources["ThermalImageHeight"];
 
+        [JsonIgnore]
         public ReactiveProperty<Bitmap> PaletteImage { get; set; }
+        [JsonIgnore]
         public ReactiveProperty<PlotModel> PlotXModel { get; }
+        [JsonIgnore]
+
         public ReactiveProperty<PlotModel> PlotYModel { get; }
         private readonly DataPoint[] _plotX;
         private readonly DataPoint[] _plotY;
@@ -34,21 +41,33 @@ namespace PI450Viewer.Models
         private bool _grabImage;
         private bool _updateImage;
 
+        [JsonIgnore]
         public ushort[,] ThermalData { get; set; }
 
-        public int ViewY { get; set; }
-        public int ViewX { get; set; }
+        [DataMember]
+        public double ViewY { get; set; }
+        [DataMember]
+        public double ViewX { get; set; }
 
+        [JsonIgnore]
         public ReactiveProperty<double> MaxTempX { get; set; }
+        [JsonIgnore]
         public ReactiveProperty<double> MinTempX { get; set; }
+        [JsonIgnore]
         public ReactiveProperty<double> AverageTempX { get; set; }
 
+        [JsonIgnore]
         public ReactiveProperty<double> MaxTempY { get; set; }
+        [JsonIgnore]
         public ReactiveProperty<double> MinTempY { get; set; }
+        [JsonIgnore]
         public ReactiveProperty<double> AverageTempY { get; set; }
 
+        [JsonIgnore]
         public ReactiveProperty<double> MaxTempTotal { get; set; }
+        [JsonIgnore]
         public ReactiveProperty<double> MinTempTotal { get; set; }
+        [JsonIgnore]
         public ReactiveProperty<double> AverageTempTotal { get; set; }
 
         public ThermalCameraHandler()
@@ -211,13 +230,13 @@ namespace PI450Viewer.Models
                     var temp = ConvertToTemp(ThermalData[i, j]);
                     UpdateProperty(temp, ref avgT, ref maxT, ref minT);
 
-                    if (i == ViewY)
+                    if (i == (int)ViewY)
                     {
                         _plotX[j] = new DataPoint(j, temp);
                         UpdateProperty(temp, ref avgX, ref maxX, ref minX);
                     }
 
-                    if (j != ViewX) continue;
+                    if (j != (int)ViewX) continue;
                     _plotY[i] = new DataPoint(_plotY.Length - 1 - i, temp);
                     UpdateProperty(temp, ref avgY, ref maxY, ref minY);
                 }
