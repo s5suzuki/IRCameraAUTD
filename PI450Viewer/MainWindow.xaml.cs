@@ -94,6 +94,7 @@ namespace PI450Viewer
             ButtonPower = new AsyncReactiveCommand();
             ButtonPower.Subscribe(async _ =>
             {
+                ThermalCameraHandler.Instance.Pause();
                 var vm = new ConfirmDialogViewModel { Message = { Value = "Are you sure to quit the application?" } };
                 var dialog = new ConfirmDialog
                 {
@@ -102,10 +103,12 @@ namespace PI450Viewer
                 var res = await DialogHost.Show(dialog, "MessageDialogHost");
                 if (res is bool quit && quit)
                 {
+                    ThermalCameraHandler.Instance.Disconnect();
                     AUTDHandler.Instance.Dispose();
                     SettingManager.SaveSetting("settings.json");
                     Application.Current.Shutdown();
                 }
+                ThermalCameraHandler.Instance.Resume();
             });
 
             OpenUrl = new ReactiveCommand<string>();

@@ -12,6 +12,7 @@
  */
 
 using System;
+using libirimagerNet;
 using PI450Viewer.Helpers;
 using PI450Viewer.Models;
 using Reactive.Bindings;
@@ -24,9 +25,19 @@ namespace PI450Viewer.ViewModels
         public AngleUnit[] AngleUnits { get; } = (AngleUnit[])Enum.GetValues(typeof(AngleUnit));
         public ReactiveProperty<AngleUnit> AngleUnit { get; }
 
+        public OptrisColoringPalette[] Palettes { get; } = (OptrisColoringPalette[])Enum.GetValues(typeof(OptrisColoringPalette));
+        public ReactiveProperty<OptrisColoringPalette> Palette { get; }
+
+        public OptrisPaletteScalingMethod[] Scalings { get; } = (OptrisPaletteScalingMethod[])Enum.GetValues(typeof(OptrisPaletteScalingMethod));
+        public ReactiveProperty<OptrisPaletteScalingMethod> Scaling { get; }
+
         public SettingsViewModel()
         {
             AngleUnit = General.Instance.ToReactivePropertyAsSynchronized(g => g.AngleUnit);
+            Palette = General.Instance.ToReactivePropertyAsSynchronized(g => g.Palette);
+            Palette.Subscribe(p => ThermalCameraHandler.Instance.SetPalette(p));
+            Scaling = General.Instance.ToReactivePropertyAsSynchronized(g => g.Scaling);
+            Scaling.Subscribe(p => ThermalCameraHandler.Instance.SetScaling(p));
         }
     }
 }

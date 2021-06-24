@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows;
+using libirimagerNet;
 using MaterialDesignThemes.Wpf;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -11,12 +11,14 @@ using PI450Viewer.Domain;
 using PI450Viewer.Helpers;
 using PI450Viewer.Models.Camera;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 
 namespace PI450Viewer.Models
 {
     public class ThermalCameraHandler : ReactivePropertyBase
     {
+        private static Lazy<ThermalCameraHandler> _lazy = new Lazy<ThermalCameraHandler>(() => new ThermalCameraHandler());
+        public static ThermalCameraHandler Instance { get => _lazy.Value; set => _lazy = new Lazy<ThermalCameraHandler>(() => value); }
+
         private readonly ICamera _camera;
 
         private static readonly int ImageWidth = (int)(double)Application.Current.Resources["ThermalImageWidth"];
@@ -30,6 +32,7 @@ namespace PI450Viewer.Models
 
         private Task? _thermalHandler;
         private bool _grabImage;
+        private bool _updateImage;
 
         public ushort[,] ThermalData { get; set; }
 
@@ -144,6 +147,7 @@ namespace PI450Viewer.Models
         {
             _camera.Connect("generic.xml");
             _grabImage = true;
+            _updateImage = true;
             _thermalHandler = Task.Run(ImageGrabberMethod);
         }
 
@@ -154,10 +158,21 @@ namespace PI450Viewer.Models
             _camera.Disconnect();
         }
 
+        public void Pause()
+        {
+            _updateImage = false;
+        }
+
+        public void Resume()
+        {
+            _updateImage = true;
+        }
+
         private async Task ImageGrabberMethod()
         {
             while (_grabImage)
             {
+                if (!_updateImage) continue;
                 try
                 {
                     var (bitmap, thermal) = _camera.GrabImage();
@@ -266,6 +281,16 @@ namespace PI450Viewer.Models
         public double GetTemp(int x, int y)
         {
             return ConvertToTemp(ThermalData[y, x]);
+        }
+
+        public void SetPalette(OptrisColoringPalette optrisColoringPalette)
+        {
+            _camera.SetPaletteFormat(optrisColoringPalette, General.Instance.Scaling);
+        }
+
+        public void SetScaling(OptrisPaletteScalingMethod optrisPaletteScalingMethod)
+        {
+            _camera.SetPaletteFormat(General.Instance.Palette, optrisPaletteScalingMethod);
         }
     }
 }

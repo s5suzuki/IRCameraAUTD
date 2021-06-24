@@ -14,6 +14,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using libirimagerNet;
 using MaterialDesignThemes.Wpf;
 using PI450Viewer.Helpers;
 using Reactive.Bindings;
@@ -41,6 +42,12 @@ namespace PI450Viewer.Models
         [DataMember]
         public AngleUnit AngleUnit { get; set; }
 
+        [DataMember]
+        public OptrisColoringPalette Palette { get; set; }
+
+        [DataMember]
+        public OptrisPaletteScalingMethod Scaling { get; set; }
+
         [JsonIgnore]
         public ReactiveProperty<IBaseTheme> BaseTheme { get; set; }
 
@@ -50,6 +57,8 @@ namespace PI450Viewer.Models
         private General()
         {
             AngleUnit = AngleUnit.Radian;
+            Palette = OptrisColoringPalette.Iron;
+            Scaling = OptrisPaletteScalingMethod.MinMax;
             BaseTheme = new ReactiveProperty<IBaseTheme>(MaterialDesignThemes.Wpf.Theme.Dark);
         }
 

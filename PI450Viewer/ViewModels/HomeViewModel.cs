@@ -18,12 +18,12 @@ using PI450Viewer.Models;
 using Reactive.Bindings;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using Reactive.Bindings.Extensions;
 using Image = System.Windows.Controls.Image;
 
 namespace PI450Viewer.ViewModels
@@ -52,9 +52,12 @@ namespace PI450Viewer.ViewModels
         public ReactiveProperty<Bitmap> PaletteImage { get; }
 
         public ReactiveProperty<bool> IsConnected { get; }
+        public ReactiveProperty<bool> IsRunning { get; }
 
         public ReactiveCommand Connect { get; }
         public ReactiveCommand Disconnect { get; }
+        public ReactiveCommand Pause { get; }
+        public ReactiveCommand Resume { get; }
 
         public ReactiveCommand<DragDeltaEventArgs> CursorYDragDelta { get; }
         public ReactiveCommand<DragDeltaEventArgs> CursorXDragDelta { get; }
@@ -70,7 +73,7 @@ namespace PI450Viewer.ViewModels
 
         public HomeViewModel()
         {
-            var model = new ThermalCameraHandler();
+            var model = ThermalCameraHandler.Instance;
 
             PaletteImage = model.PaletteImage;
 
@@ -88,19 +91,35 @@ namespace PI450Viewer.ViewModels
             AverageTempTotal = model.AverageTempTotal;
 
             IsConnected = new ReactiveProperty<bool>(false);
+            IsRunning = new ReactiveProperty<bool>(false);
 
             Connect = IsConnected.Select(b => !b).ToReactiveCommand();
             Connect.Subscribe(() =>
             {
                 model.Connect();
                 IsConnected.Value = true;
+                IsRunning.Value = true;
             });
-
             Disconnect = IsConnected.Select(b => b).ToReactiveCommand();
             Disconnect.Subscribe(() =>
             {
                 model.Disconnect();
                 IsConnected.Value = false;
+                IsRunning.Value = false;
+            });
+            Pause = new[] { IsConnected, IsRunning }
+                .CombineLatest(x => x.All(y => y)).ToReactiveCommand();
+            Pause.Subscribe(() =>
+            {
+                model.Pause();
+                IsRunning.Value = false;
+            });
+            Resume = new[] { IsConnected, IsRunning }
+                .CombineLatest(x => x[0] && !x[1]).ToReactiveCommand();
+            Resume.Subscribe(() =>
+            {
+                model.Resume();
+                IsRunning.Value = true;
             });
 
             CursorYDragDelta = new ReactiveCommand<DragDeltaEventArgs>();
