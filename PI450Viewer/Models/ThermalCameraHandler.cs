@@ -51,6 +51,9 @@ namespace PI450Viewer.Models
         public double ViewX { get; set; }
 
         [DataMember]
+        public bool CursorEnable { get; set; }
+
+        [DataMember]
         public bool FixAxes { get; set; }
         [DataMember]
         public double AxesMinimum { get; set; }
@@ -84,6 +87,8 @@ namespace PI450Viewer.Models
 
             AxesMinimum = 0;
             AxesMaximum = 100;
+
+            CursorEnable = true;
 
             ThermalData = new ushort[ImageHeight, ImageWidth];
 
@@ -270,6 +275,8 @@ namespace PI450Viewer.Models
             MinTempX.Value = minX;
             MinTempY.Value = minY;
 
+            if (!CursorEnable) return;
+            
             var seriesX = new LineSeries();
             seriesX.Points.AddRange(_plotX);
             lock (PlotXModel.Value.SyncRoot)

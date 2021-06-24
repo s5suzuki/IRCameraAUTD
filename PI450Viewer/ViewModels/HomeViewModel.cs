@@ -64,6 +64,7 @@ namespace PI450Viewer.ViewModels
         public ReactiveCommand Pause { get; }
         public ReactiveCommand Resume { get; }
 
+        public ReactiveProperty<bool> CursorEnable { get; }
         public ReactiveProperty<double> CursorXPos { get; }
         public ReactiveProperty<double> CursorYPos { get; }
 
@@ -97,6 +98,8 @@ namespace PI450Viewer.ViewModels
             MaxTempTotal = model.MaxTempTotal;
             MinTempTotal = model.MinTempTotal;
             AverageTempTotal = model.AverageTempTotal;
+
+            CursorEnable = model.ToReactivePropertyAsSynchronized(m => m.CursorEnable);
 
             FixAxes = model.ToReactivePropertyAsSynchronized(m => m.FixAxes);
             FixAxes.Subscribe(_ => model.SetPlotAxes());
