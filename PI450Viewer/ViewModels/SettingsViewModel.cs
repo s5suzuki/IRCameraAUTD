@@ -31,6 +31,9 @@ namespace PI450Viewer.ViewModels
         public OptrisPaletteScalingMethod[] Scalings { get; } = (OptrisPaletteScalingMethod[])Enum.GetValues(typeof(OptrisPaletteScalingMethod));
         public ReactiveProperty<OptrisPaletteScalingMethod> Scaling { get; }
 
+        public ReactiveProperty<double> ManualPaletteMin { get; }
+        public ReactiveProperty<double> ManualPaletteMax { get; }
+
         public SettingsViewModel()
         {
             AngleUnit = General.Instance.ToReactivePropertyAsSynchronized(g => g.AngleUnit);
@@ -38,6 +41,11 @@ namespace PI450Viewer.ViewModels
             Palette.Subscribe(p => ThermalCameraHandler.Instance.SetPalette(p));
             Scaling = General.Instance.ToReactivePropertyAsSynchronized(g => g.Scaling);
             Scaling.Subscribe(p => ThermalCameraHandler.Instance.SetScaling(p));
+
+            ManualPaletteMin = General.Instance.ToReactivePropertyAsSynchronized(g => g.ManualPaletteMin);
+            ManualPaletteMax = General.Instance.ToReactivePropertyAsSynchronized(g => g.ManualPaletteMax);
+            ManualPaletteMin.Subscribe(p => ThermalCameraHandler.Instance.SetPaletteManualRange(p, ManualPaletteMax.Value));
+            ManualPaletteMax.Subscribe(p => ThermalCameraHandler.Instance.SetPaletteManualRange(ManualPaletteMin.Value, p));
         }
     }
 }

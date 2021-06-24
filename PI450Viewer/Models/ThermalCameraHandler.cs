@@ -328,5 +328,10 @@ namespace PI450Viewer.Models
         {
             _camera.SetPaletteFormat(General.Instance.Palette, optrisPaletteScalingMethod);
         }
+
+        public void SetPaletteManualRange(double min, double max)
+        {
+            _camera.SetPaletteManualRange(min, max);
+        }
     }
 }

@@ -10,6 +10,11 @@ namespace PI450Viewer.Models.Camera
             IrDirectInterface.Instance.SetPaletteFormat(coloring, scaling);
         }
 
+        public void SetPaletteManualRange(double min, double max)
+        {
+            IrDirectInterface.Instance.SetPaletteManualRange((float)min, (float)max);
+        }
+
         public void Connect(string xml)
         {
             IrDirectInterface.Instance.Connect(xml);

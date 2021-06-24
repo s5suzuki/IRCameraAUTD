@@ -4,8 +4,8 @@
     Created Date: 29/03/2021
     Author: Shun Suzuki
     =====
-Last Modified: 24/06/2021
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+    Last Modified: 24/06/2021
+    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     =====
     Copyright (c) 2021 Hapis Lab. All rights reserved.
 -->
@@ -14,6 +14,7 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     x:Class="PI450Viewer.Views.Settings"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converter="clr-namespace:PI450Viewer.Converter"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:PI450Viewer.ViewModels"
@@ -26,6 +27,10 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     <Page.DataContext>
         <viewModels:SettingsViewModel />
     </Page.DataContext>
+
+    <Page.Resources>
+        <converter:FloatToStringConverter x:Key="FloatConverter" />
+    </Page.Resources>
 
     <Grid Margin="12">
         <Grid.RowDefinitions>
@@ -103,6 +108,36 @@ Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
                             ItemsSource="{Binding Scalings}"
                             SelectedValue="{Binding Scaling.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Style="{StaticResource MaterialDesignComboBox}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Width="160"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Manual temp. min: "
+                            TextAlignment="Right" />
+                        <TextBox
+                            Width="80"
+                            HorizontalAlignment="Right"
+                            HorizontalContentAlignment="Right"
+                            FontSize="{StaticResource FontSize}"
+                            Text="{Binding ManualPaletteMin.Value}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Width="160"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Manual temp. max: "
+                            TextAlignment="Right" />
+                        <TextBox
+                            Width="80"
+                            HorizontalAlignment="Right"
+                            HorizontalContentAlignment="Right"
+                            FontSize="{StaticResource FontSize}"
+                            Text="{Binding ManualPaletteMax.Value}" />
                     </StackPanel>
                 </StackPanel>
             </GroupBox>

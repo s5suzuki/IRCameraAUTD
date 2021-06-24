@@ -54,6 +54,10 @@ namespace PI450Viewer.Models
         [DataMember]
         public Theme BaseThemeStore { get; set; }
 
+        [DataMember]
+        public double ManualPaletteMin { get; set; }
+        public double ManualPaletteMax { get; set; }
+
         private General()
         {
             AngleUnit = AngleUnit.Radian;

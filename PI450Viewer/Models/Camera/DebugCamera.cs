@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -14,14 +15,23 @@ namespace PI450Viewer.Models.Camera
 
         public void SetPaletteFormat(OptrisColoringPalette coloring, OptrisPaletteScalingMethod scaling)
         {
+            Debug.WriteLine("Palette " + coloring);
+            Debug.WriteLine("Scaling " + scaling);
+        }
+
+        public void SetPaletteManualRange(double min, double max)
+        {
+            Debug.WriteLine("Palette range " + min + ", " + max);
         }
 
         public void Connect(string xml)
         {
+            Debug.WriteLine("Connect");
         }
 
         public void Disconnect()
         {
+            Debug.WriteLine("Disconnect");
         }
 
         public ThermalPaletteImage GrabImage()
