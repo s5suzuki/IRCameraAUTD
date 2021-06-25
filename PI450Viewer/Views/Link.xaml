@@ -1,0 +1,161 @@
+﻿<!--
+    File: Link.xaml
+    Project: Views
+    Created Date: 29/03/2021
+    Author: Shun Suzuki
+    =====
+    Last Modified: 23/06/2021
+    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+    =====
+    Copyright (c) 2021 Hapis Lab. All rights reserved.
+-->
+
+<Page
+    x:Class="PI450Viewer.Views.Link"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converter="clr-namespace:PI450Viewer.Converter"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:PI450Viewer.Domain"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:PI450Viewer.ViewModels"
+    Title="Link"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converter:BoolToEnumConverter x:Key="Enum" />
+    </Page.Resources>
+
+    <Page.DataContext>
+        <viewModels:LinkViewModel />
+    </Page.DataContext>
+
+    <Grid Margin="12">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock FontSize="{StaticResource TitleFontSize}" Text="Link" />
+            <ScrollViewer
+                Grid.Row="1"
+                Margin="0,12,0,0"
+                VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <GroupBox
+                        Grid.Row="0"
+                        Margin="0,0,0,12"
+                        Style="{DynamicResource MaterialDesignCardGroupBox}">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton IsChecked="{Binding DataContext.LinkSelected.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource Enum}, ConverterParameter=SOEM, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}" Style="{DynamicResource MaterialDesignUserForegroundRadioButton}" />
+                                    <TextBlock
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                        Text="SOEM" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+                        <StackPanel>
+                            <Grid Height="32">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    Grid.Column="0"
+                                    materialDesign:HintAssist.Hint="Interface name"
+                                    materialDesign:ValidationAssist.FontSize="16"
+                                    materialDesign:ValidationAssist.OnlyShowOnFocus="True"
+                                    FontSize="16"
+                                    IsEditable="True"
+                                    IsEnabled="{Binding DataContext.LinkSelected.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource Enum}, ConverterParameter=SOEM, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}"
+                                    ItemsSource="{Binding Interfaces}"
+                                    Style="{StaticResource MaterialDesignComboBox}">
+                                    <ComboBox.Text>
+                                        <Binding Path="InterfaceName.Value" UpdateSourceTrigger="PropertyChanged">
+                                            <Binding.ValidationRules>
+                                                <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </ComboBox.Text>
+                                </ComboBox>
+                                <Button
+                                    Grid.Column="1"
+                                    Width="32"
+                                    Height="32"
+                                    Padding="0"
+                                    Background="{x:Null}"
+                                    BorderBrush="{x:Null}"
+                                    Command="{Binding UpdateInterfaces}"
+                                    Style="{StaticResource MaterialDesignFloatingActionButton}">
+                                    <materialDesign:PackIcon Kind="Reload" />
+                                </Button>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock
+                                    Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource MaterialDesignTextBlock}"
+                                    Text="Cycle ticks: " />
+                                <TextBox
+                                    Width="80"
+                                    FontSize="20"
+                                    Text="{Binding CycleTicks.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    TextAlignment="Right" />
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox
+                        Grid.Row="1"
+                        Margin="0,0,0,12"
+                        Style="{DynamicResource MaterialDesignCardGroupBox}">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton IsChecked="{Binding DataContext.LinkSelected.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource Enum}, ConverterParameter=TwinCAT, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Page}}}" Style="{DynamicResource MaterialDesignUserForegroundRadioButton}" />
+                                    <TextBlock
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                        Text="TwinCAT" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+                    </GroupBox>
+                </Grid>
+            </ScrollViewer>
+            <Grid Grid.Row="2" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    Grid.Column="0"
+                    Width="80"
+                    Margin="12,0,0,0"
+                    Command="{Binding Open}"
+                    Content="Open"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+                <Button
+                    Grid.Column="1"
+                    Width="80"
+                    Margin="12,0,0,0"
+                    Command="{Binding Close}"
+                    Content="Close"
+                    Style="{StaticResource MaterialDesignRaisedButton}" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

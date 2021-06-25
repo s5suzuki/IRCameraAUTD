@@ -1,0 +1,92 @@
+﻿<!--
+    File: Modulation.xaml
+    Project: Views
+    Created Date: 29/03/2021
+    Author: Shun Suzuki
+    =====
+    Last Modified: 23/06/2021
+    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+    =====
+    Copyright (c) 2021 Hapis Lab. All rights reserved.
+-->
+
+<Page
+    x:Class="PI450Viewer.Views.ModulationSelect"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewModels="clr-namespace:PI450Viewer.ViewModels"
+    Title="Modulation"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    mc:Ignorable="d">
+
+    <Page.DataContext>
+        <viewModels:ModulationViewModel />
+    </Page.DataContext>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock FontSize="{StaticResource TitleFontSize}" Text="Modulation" />
+        <WrapPanel Grid.Row="1" Margin="0,12,0,12">
+            <Button
+                Width="Auto"
+                Margin="0,12,0,0"
+                Command="{Binding TransitPage}"
+                CommandParameter="PI450Viewer.Views.Modulation.SineView"
+                Content="Sine"
+                Style="{StaticResource MaterialDesignRaisedButton}" />
+            <Button
+                Width="Auto"
+                Margin="12,12,0,0"
+                Command="{Binding TransitPage}"
+                CommandParameter="PI450Viewer.Views.Modulation.StaticView"
+                Content="Static"
+                Style="{StaticResource MaterialDesignRaisedButton}" />
+            <Button
+                Width="Auto"
+                Margin="12,12,0,0"
+                Command="{Binding TransitPage}"
+                CommandParameter="PI450Viewer.Views.Modulation.SinePressureView"
+                Content="SinePressure"
+                Style="{StaticResource MaterialDesignRaisedButton}" />
+            <Button
+                Width="Auto"
+                Margin="12,12,0,0"
+                Command="{Binding TransitPage}"
+                CommandParameter="PI450Viewer.Views.Modulation.SquareView"
+                Content="Square"
+                Style="{StaticResource MaterialDesignRaisedButton}" />
+        </WrapPanel>
+        <Frame
+            Grid.Row="2"
+            Content="{Binding Page.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            NavigationUIVisibility="Hidden" />
+        <StackPanel
+            Grid.Row="3"
+            Margin="0,0,0,0"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Width="{StaticResource ActionButtonContainerSize}"
+                Height="{StaticResource ActionButtonContainerSize}"
+                Padding="0"
+                BorderBrush="{x:Null}"
+                Command="{Binding SendModulationCommand}"
+                Style="{StaticResource MaterialDesignFloatingActionButton}">
+                <materialDesign:PackIcon
+                    Width="{StaticResource ActionButtonSize}"
+                    Height="{StaticResource ActionButtonSize}"
+                    Kind="Add" />
+            </Button>
+        </StackPanel>
+    </Grid>
+</Page>

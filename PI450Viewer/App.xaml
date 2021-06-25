@@ -1,14 +1,48 @@
-﻿<Application
+﻿<!--
+    File: App.xaml
+    Project: PI450Viewer
+    Created Date: 29/03/2021
+    Author: Shun Suzuki
+    =====
+    Last Modified: 23/06/2021
+    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+    =====
+    Copyright (c) 2021 Hapis Lab. All rights reserved.
+-->
+
+<Application
     x:Class="PI450Viewer.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <system:Double x:Key="DragMargin">8.0</system:Double>
-        <system:Double x:Key="InitX">197.0</system:Double>
-        <system:Double x:Key="InitY">144.0</system:Double>
-        <system:Double x:Key="Width">382.0</system:Double>
-        <system:Double x:Key="Height">288.0</system:Double>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignExtensions;component/Themes/Generic.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/materialdesigncolor.deeppurple.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/materialdesigncolor.lime.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DialogHost.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ProgressBar.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <sys:Double x:Key="MenuIconContainerSize">40</sys:Double>
+            <sys:Double x:Key="MenuIconSize">32</sys:Double>
+            <Thickness x:Key="MenuIconMargin">4 0 0 0</Thickness>
+            <Thickness x:Key="MenuIconPadding">40 0 0 0</Thickness>
+            <sys:Double x:Key="TitleFontSize">32</sys:Double>
+            <sys:Double x:Key="HeaderFontSize">24</sys:Double>
+            <sys:Double x:Key="FontSize">16</sys:Double>
+            <sys:Double x:Key="ColumnHeight">32</sys:Double>
+            <sys:Double x:Key="ColumnWidth">80</sys:Double>
+            <sys:Double x:Key="ActionButtonContainerSize">32</sys:Double>
+            <sys:Double x:Key="ActionButtonSize">24</sys:Double>
+            <sys:Double x:Key="MenuExpandWidth">132</sys:Double>
+            <sys:Double x:Key="ThermalImageDragMargin">8.0</sys:Double>
+            <sys:Double x:Key="ThermalImageCursorInitX">191.0</sys:Double>
+            <sys:Double x:Key="ThermalImageCursorInitY">144.0</sys:Double>
+            <sys:Double x:Key="ThermalImageWidth">382.0</sys:Double>
+            <sys:Double x:Key="ThermalImageHeight">288.0</sys:Double>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
