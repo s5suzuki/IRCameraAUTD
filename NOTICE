@@ -2,7 +2,8 @@ THIRD PARTY NOTICES
 
 * This program uses Eigen3 library (https://gitlab.com/libeigen/eigen). Also,
   * SOEMLink uses SOEM library (https://github.com/OpenEtherCATsociety/SOEM)
-* The licenses of these libraries are shown below.
+* The licenses of these libraries are shown below
+* The license file of libirimager lies in libirimagerNet/LICENCE   
 
 ********************* SOEM ***********************
 Simple Open EtherCAT Master Library
