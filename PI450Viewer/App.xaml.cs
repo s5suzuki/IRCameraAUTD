@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using System.Windows;
@@ -13,6 +14,8 @@ namespace PI450Viewer
         {
             try
             {
+                if (!File.Exists("settings.json"))
+                    SettingManager.SaveSetting("settings.json");
                 SettingManager.LoadSetting("settings.json");
                 var primaryColor = SwatchHelper.Lookup[MaterialDesignColor.DeepPurple];
                 var accentColor = SwatchHelper.Lookup[MaterialDesignColor.Lime];

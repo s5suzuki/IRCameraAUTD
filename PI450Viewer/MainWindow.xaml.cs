@@ -25,6 +25,7 @@ using PI450Viewer.Models;
 using PI450Viewer.Views;
 using MaterialDesignExtensions.Controls;
 using MaterialDesignThemes.Wpf;
+using OxyPlot;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
@@ -50,7 +51,7 @@ namespace PI450Viewer
 
     public class MainWindowViewModel : ReactivePropertyBase
     {
-        public ReactiveProperty<Page> Page { get; }
+        public ReactivePropertySlim<Page> Page { get; }
 
         public ReactiveCommand<string> TransitPage { get; }
         public ReactiveCommand ToggleTheme { get; }
@@ -68,7 +69,7 @@ namespace PI450Viewer
         public MainWindowViewModel()
         {
             Model = new MainWindowModel();
-            Page = Model.ToReactivePropertyAsSynchronized(m => m.Page);
+            Page = Model.ToReactivePropertySlimAsSynchronized(m => m.Page);
 
             Dictionary<string, Page> pageCache = new Dictionary<string, Page> { { "PI450Viewer.Views.Home", Page.Value } };
 
@@ -87,6 +88,7 @@ namespace PI450Viewer
                     var baseTheme = theme.GetBaseTheme() == BaseTheme.Dark ? MaterialDesignThemes.Wpf.Theme.Light : MaterialDesignThemes.Wpf.Theme.Dark;
                     theme.SetBaseTheme(baseTheme);
                     General.Instance.BaseTheme.Value = baseTheme;
+                    ThermalCameraHandler.Instance.SetColor(baseTheme == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black); ThermalCameraHandler.Instance.SetPlotAxes();
                     paletteHelper.SetTheme(theme);
                 }
             );

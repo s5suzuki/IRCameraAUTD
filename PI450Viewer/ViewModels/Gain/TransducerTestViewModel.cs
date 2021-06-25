@@ -21,13 +21,11 @@ namespace PI450Viewer.ViewModels.Gain
 {
     public class TransducerTestViewModel : ReactivePropertyBase
     {
-
-
-        public ReactiveProperty<TransducerTest> TransducerTest { get; }
+        public ReactivePropertySlim<TransducerTest> TransducerTest { get; }
 
         public TransducerTestViewModel()
         {
-            TransducerTest = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.TransducerTest);
+            TransducerTest = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.TransducerTest);
         }
     }
 }

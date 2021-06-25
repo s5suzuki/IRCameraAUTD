@@ -21,13 +21,11 @@ namespace PI450Viewer.ViewModels.Gain
 {
     public class PlaneWaveViewModel : ReactivePropertyBase
     {
-
-
-        public ReactiveProperty<PlaneWave> PlaneWave { get; }
+        public ReactivePropertySlim<PlaneWave> PlaneWave { get; }
 
         public PlaneWaveViewModel()
         {
-            PlaneWave = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.PlaneWave);
+            PlaneWave = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.PlaneWave);
         }
     }
 }

@@ -21,13 +21,11 @@ namespace PI450Viewer.ViewModels.Modulation
 {
     public class SquareModulationViewModel : ReactivePropertyBase
     {
-
-
-        public ReactiveProperty<SquareModulation> Square { get; }
+        public ReactivePropertySlim<SquareModulation> Square { get; }
 
         public SquareModulationViewModel()
         {
-            Square = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.Square);
+            Square = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.Square);
         }
     }
 }

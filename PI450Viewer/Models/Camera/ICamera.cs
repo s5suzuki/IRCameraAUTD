@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using libirimagerNet;
+﻿using libirimagerNet;
 
 namespace PI450Viewer.Models.Camera
 {

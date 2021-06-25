@@ -23,27 +23,27 @@ namespace PI450Viewer.ViewModels
     public class SettingsViewModel : ReactivePropertyBase
     {
         public AngleUnit[] AngleUnits { get; } = (AngleUnit[])Enum.GetValues(typeof(AngleUnit));
-        public ReactiveProperty<AngleUnit> AngleUnit { get; }
+        public ReactivePropertySlim<AngleUnit> AngleUnit { get; }
 
         public OptrisColoringPalette[] Palettes { get; } = (OptrisColoringPalette[])Enum.GetValues(typeof(OptrisColoringPalette));
-        public ReactiveProperty<OptrisColoringPalette> Palette { get; }
+        public ReactivePropertySlim<OptrisColoringPalette> Palette { get; }
 
         public OptrisPaletteScalingMethod[] Scalings { get; } = (OptrisPaletteScalingMethod[])Enum.GetValues(typeof(OptrisPaletteScalingMethod));
-        public ReactiveProperty<OptrisPaletteScalingMethod> Scaling { get; }
+        public ReactivePropertySlim<OptrisPaletteScalingMethod> Scaling { get; }
 
-        public ReactiveProperty<double> ManualPaletteMin { get; }
-        public ReactiveProperty<double> ManualPaletteMax { get; }
+        public ReactivePropertySlim<double> ManualPaletteMin { get; }
+        public ReactivePropertySlim<double> ManualPaletteMax { get; }
 
         public SettingsViewModel()
         {
-            AngleUnit = General.Instance.ToReactivePropertyAsSynchronized(g => g.AngleUnit);
-            Palette = General.Instance.ToReactivePropertyAsSynchronized(g => g.Palette);
+            AngleUnit = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.AngleUnit);
+            Palette = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.Palette);
             Palette.Subscribe(p => ThermalCameraHandler.Instance.SetPalette(p));
-            Scaling = General.Instance.ToReactivePropertyAsSynchronized(g => g.Scaling);
+            Scaling = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.Scaling);
             Scaling.Subscribe(p => ThermalCameraHandler.Instance.SetScaling(p));
 
-            ManualPaletteMin = General.Instance.ToReactivePropertyAsSynchronized(g => g.ManualPaletteMin);
-            ManualPaletteMax = General.Instance.ToReactivePropertyAsSynchronized(g => g.ManualPaletteMax);
+            ManualPaletteMin = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.ManualPaletteMin);
+            ManualPaletteMax = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.ManualPaletteMax);
             ManualPaletteMin.Subscribe(p => ThermalCameraHandler.Instance.SetPaletteManualRange(p, ManualPaletteMax.Value));
             ManualPaletteMax.Subscribe(p => ThermalCameraHandler.Instance.SetPaletteManualRange(ManualPaletteMin.Value, p));
         }

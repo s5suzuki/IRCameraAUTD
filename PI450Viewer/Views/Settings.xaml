@@ -122,7 +122,7 @@
                             HorizontalAlignment="Right"
                             HorizontalContentAlignment="Right"
                             FontSize="{StaticResource FontSize}"
-                            Text="{Binding ManualPaletteMin.Value}" />
+                            Text="{Binding ManualPaletteMin.Value, Converter={StaticResource FloatConverter}}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal">
@@ -137,7 +137,7 @@
                             HorizontalAlignment="Right"
                             HorizontalContentAlignment="Right"
                             FontSize="{StaticResource FontSize}"
-                            Text="{Binding ManualPaletteMax.Value}" />
+                            Text="{Binding ManualPaletteMax.Value, Converter={StaticResource FloatConverter}}" />
                     </StackPanel>
                 </StackPanel>
             </GroupBox>

@@ -21,13 +21,11 @@ namespace PI450Viewer.ViewModels.Modulation
 {
     public class StaticModulationViewModel : ReactivePropertyBase
     {
-
-
-        public ReactiveProperty<StaticModulation> Static { get; }
+        public ReactivePropertySlim<StaticModulation> Static { get; }
 
         public StaticModulationViewModel()
         {
-            Static = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.Static);
+            Static = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.Static);
         }
     }
 }

@@ -28,10 +28,10 @@ namespace PI450Viewer.ViewModels
     internal class LinkViewModel : ReactivePropertyBase
     {
         public ObservableCollection<string> Interfaces { get; }
-        public ReactiveProperty<string> InterfaceName { get; }
-        public ReactiveProperty<LinkSelect> LinkSelected { get; }
+        public ReactivePropertySlim<string> InterfaceName { get; }
+        public ReactivePropertySlim<LinkSelect> LinkSelected { get; }
 
-        public ReactiveProperty<uint> CycleTicks { get; }
+        public ReactivePropertySlim<uint> CycleTicks { get; }
 
         public AsyncReactiveCommand UpdateInterfaces { get; }
         public AsyncReactiveCommand Open { get; }
@@ -41,8 +41,8 @@ namespace PI450Viewer.ViewModels
         {
             Interfaces = new ObservableCollection<string>();
 
-            LinkSelected = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.LinkSelected);
-            CycleTicks = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.CycleTicks);
+            LinkSelected = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.LinkSelected);
+            CycleTicks = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.CycleTicks);
 
             try
             {
@@ -53,7 +53,7 @@ namespace PI450Viewer.ViewModels
                 LinkSelected.Value = LinkSelect.TwinCAT;
             }
 
-            InterfaceName = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.InterfaceName);
+            InterfaceName = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.InterfaceName);
 
             UpdateInterfaces = LinkSelected.Select(s => s == LinkSelect.SOEM).ToAsyncReactiveCommand();
             UpdateInterfaces.Subscribe(async _ =>

@@ -29,10 +29,8 @@ namespace PI450Viewer.ViewModels
 {
     internal class GeometryViewModel : ReactivePropertyBase, IDropTarget
     {
-
-
         public ObservableCollectionWithItemNotify<GeometrySettingReactive> Geometries { get; }
-        public ReactiveProperty<GeometrySettingReactive?> Current { get; }
+        public ReactivePropertySlim<GeometrySettingReactive?> Current { get; }
 
         public ReactiveCommand AddItem { get; }
         public ReactiveCommand RemoveItem { get; }
@@ -43,7 +41,7 @@ namespace PI450Viewer.ViewModels
         {
             Geometries = AUTDSettings.Instance.GeometriesReactive;
 
-            Current = new ReactiveProperty<GeometrySettingReactive?>();
+            Current = new ReactivePropertySlim<GeometrySettingReactive?>();
             AddItem = new ReactiveCommand();
             RemoveItem = Current.Select(c => c != null).ToReactiveCommand();
             UpItem = Current.Select(c => c != null && c.No.Value != 0).ToReactiveCommand();

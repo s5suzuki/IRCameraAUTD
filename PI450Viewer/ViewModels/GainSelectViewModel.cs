@@ -27,7 +27,7 @@ namespace PI450Viewer.ViewModels
     {
         public ReactiveCommand SendGainCommand { get; }
 
-        public ReactiveProperty<Page> Page { get; }
+        public ReactivePropertySlim<Page> Page { get; }
         public ReactiveCommand<string> TransitPage { get; }
 
         public GainSelectViewModel()
@@ -39,7 +39,7 @@ namespace PI450Viewer.ViewModels
             });
 
             Dictionary<string, Page> pageCache = new Dictionary<string, Page>();
-            Page = new ReactiveProperty<Page>(new FocalPointView());
+            Page = new ReactivePropertySlim<Page>(new FocalPointView());
 
             TransitPage = new ReactiveCommand<string>();
             TransitPage.Subscribe(page =>

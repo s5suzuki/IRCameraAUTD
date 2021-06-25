@@ -21,13 +21,11 @@ namespace PI450Viewer.ViewModels.Modulation
 {
     public class SineModulationViewModel : ReactivePropertyBase
     {
-
-
-        public ReactiveProperty<SineModulation> Sine { get; }
+        public ReactivePropertySlim<SineModulation> Sine { get; }
 
         public SineModulationViewModel()
         {
-            Sine = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.Sine);
+            Sine = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.Sine);
         }
     }
 }

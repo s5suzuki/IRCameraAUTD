@@ -17,25 +17,25 @@ namespace PI450Viewer.Helpers
 {
     public class Vector3Reactive : ReactivePropertyBase
     {
-        public ReactiveProperty<int> No { get; }
-        public ReactiveProperty<double> X { get; }
-        public ReactiveProperty<double> Y { get; }
-        public ReactiveProperty<double> Z { get; }
+        public ReactivePropertySlim<int> No { get; }
+        public ReactivePropertySlim<double> X { get; }
+        public ReactivePropertySlim<double> Y { get; }
+        public ReactivePropertySlim<double> Z { get; }
 
         public Vector3Reactive(int no)
         {
-            No = new ReactiveProperty<int>(no);
-            X = new ReactiveProperty<double>();
-            Y = new ReactiveProperty<double>();
-            Z = new ReactiveProperty<double>();
+            No = new ReactivePropertySlim<int>(no);
+            X = new ReactivePropertySlim<double>();
+            Y = new ReactivePropertySlim<double>();
+            Z = new ReactivePropertySlim<double>();
         }
 
         public Vector3Reactive(int no, Vector3Class v)
         {
-            No = new ReactiveProperty<int>(no);
-            X = new ReactiveProperty<double>(v.X);
-            Y = new ReactiveProperty<double>(v.Y);
-            Z = new ReactiveProperty<double>(v.Z);
+            No = new ReactivePropertySlim<int>(no);
+            X = new ReactivePropertySlim<double>(v.X);
+            Y = new ReactivePropertySlim<double>(v.Y);
+            Z = new ReactivePropertySlim<double>(v.Z);
         }
 
         public Vector3Class ToVector3() => new Vector3Class(X.Value, Y.Value, Z.Value);

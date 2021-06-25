@@ -30,10 +30,10 @@ namespace PI450Viewer.ViewModels
 {
     internal class SeqViewModel : ReactivePropertyBase, IDropTarget
     {
-        public ReactiveProperty<Seq> Seq { get; }
+        public ReactivePropertySlim<Seq> Seq { get; }
 
         public ObservableCollectionWithItemNotify<Vector3Reactive> Points { get; }
-        public ReactiveProperty<Vector3Reactive?> Current { get; }
+        public ReactivePropertySlim<Vector3Reactive?> Current { get; }
 
         public ReactiveCommand AddItem { get; }
         public ReactiveCommand RemoveItem { get; }
@@ -44,7 +44,7 @@ namespace PI450Viewer.ViewModels
 
         public SeqViewModel()
         {
-            Seq = AUTDSettings.Instance.ToReactivePropertyAsSynchronized(i => i.Seq);
+            Seq = AUTDSettings.Instance.ToReactivePropertySlimAsSynchronized(i => i.Seq);
             Points = AUTDSettings.Instance.Seq.PointsReactive;
 
             SendSeqCommand = AUTDHandler.Instance.IsOpen.Select(b => b).ToReactiveCommand();
@@ -54,7 +54,7 @@ namespace PI450Viewer.ViewModels
                 AUTDHandler.Instance.SendSeq();
             });
 
-            Current = new ReactiveProperty<Vector3Reactive?>();
+            Current = new ReactivePropertySlim<Vector3Reactive?>();
             AddItem = new ReactiveCommand();
             RemoveItem = Current.Select(c => c != null).ToReactiveCommand();
             UpItem = Current.Select(c => c != null && c.No.Value != 0).ToReactiveCommand();

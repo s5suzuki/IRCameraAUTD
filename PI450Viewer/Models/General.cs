@@ -49,7 +49,7 @@ namespace PI450Viewer.Models
         public OptrisPaletteScalingMethod Scaling { get; set; }
 
         [JsonIgnore]
-        public ReactiveProperty<IBaseTheme> BaseTheme { get; set; }
+        public ReactivePropertySlim<IBaseTheme> BaseTheme { get; set; }
 
         [DataMember]
         public Theme BaseThemeStore { get; set; }
@@ -63,7 +63,7 @@ namespace PI450Viewer.Models
             AngleUnit = AngleUnit.Radian;
             Palette = OptrisColoringPalette.Iron;
             Scaling = OptrisPaletteScalingMethod.MinMax;
-            BaseTheme = new ReactiveProperty<IBaseTheme>(MaterialDesignThemes.Wpf.Theme.Dark);
+            BaseTheme = new ReactivePropertySlim<IBaseTheme>(MaterialDesignThemes.Wpf.Theme.Dark);
         }
 
         public double ConvertAngle(double angle)

@@ -35,46 +35,46 @@ namespace PI450Viewer.ViewModels
         private static readonly int ImageHeight = (int)(double)Application.Current.Resources["ThermalImageHeight"];
         private static readonly double Margin = (double)Application.Current.Resources["ThermalImageDragMargin"];
 
-        public ReactiveProperty<PlotModel> PlotXModel { get; }
-        public ReactiveProperty<PlotModel> PlotYModel { get; }
+        public ReactivePropertySlim<PlotModel> PlotXModel { get; }
+        public ReactivePropertySlim<PlotModel> PlotYModel { get; }
 
-        public ReactiveProperty<bool> FixAxes { get; }
-        public ReactiveProperty<double> AxesMinimum { get; }
-        public ReactiveProperty<double> AxesMaximum { get; }
+        public ReactivePropertySlim<bool> FixAxes { get; }
+        public ReactivePropertySlim<double> AxesMinimum { get; }
+        public ReactivePropertySlim<double> AxesMaximum { get; }
 
-        public ReactiveProperty<double> MaxTempX { get; }
-        public ReactiveProperty<double> MinTempX { get; }
-        public ReactiveProperty<double> AverageTempX { get; }
+        public ReactivePropertySlim<double> MaxTempX { get; }
+        public ReactivePropertySlim<double> MinTempX { get; }
+        public ReactivePropertySlim<double> AverageTempX { get; }
 
-        public ReactiveProperty<double> MaxTempY { get; }
-        public ReactiveProperty<double> MinTempY { get; }
-        public ReactiveProperty<double> AverageTempY { get; }
+        public ReactivePropertySlim<double> MaxTempY { get; }
+        public ReactivePropertySlim<double> MinTempY { get; }
+        public ReactivePropertySlim<double> AverageTempY { get; }
 
-        public ReactiveProperty<double> MaxTempTotal { get; }
-        public ReactiveProperty<double> MinTempTotal { get; }
-        public ReactiveProperty<double> AverageTempTotal { get; }
+        public ReactivePropertySlim<double> MaxTempTotal { get; }
+        public ReactivePropertySlim<double> MinTempTotal { get; }
+        public ReactivePropertySlim<double> AverageTempTotal { get; }
 
-        public ReactiveProperty<Bitmap> PaletteImage { get; }
+        public ReactivePropertySlim<Bitmap> PaletteImage { get; }
 
-        public ReactiveProperty<bool> IsConnected { get; }
-        public ReactiveProperty<bool> IsRunning { get; }
+        public ReactivePropertySlim<bool> IsConnected { get; }
+        public ReactivePropertySlim<bool> IsRunning { get; }
 
         public ReactiveCommand Connect { get; }
         public ReactiveCommand Disconnect { get; }
         public ReactiveCommand Pause { get; }
         public ReactiveCommand Resume { get; }
 
-        public ReactiveProperty<bool> CursorEnable { get; }
-        public ReactiveProperty<double> CursorXPos { get; }
-        public ReactiveProperty<double> CursorYPos { get; }
+        public ReactivePropertySlim<bool> CursorEnable { get; }
+        public ReactivePropertySlim<double> CursorXPos { get; }
+        public ReactivePropertySlim<double> CursorYPos { get; }
 
         public ReactiveCommand<DragDeltaEventArgs> CursorYDragDelta { get; }
         public ReactiveCommand<DragDeltaEventArgs> CursorXDragDelta { get; }
 
-        public ReactiveProperty<Visibility> ThermalAtCursorVisible { get; }
-        public ReactiveProperty<double> ThermalAtCursorX { get; }
-        public ReactiveProperty<double> ThermalAtCursorY { get; }
-        public ReactiveProperty<string> ThermalAtCursor { get; }
+        public ReactivePropertySlim<Visibility> ThermalAtCursorVisible { get; }
+        public ReactivePropertySlim<double> ThermalAtCursorX { get; }
+        public ReactivePropertySlim<double> ThermalAtCursorY { get; }
+        public ReactivePropertySlim<string> ThermalAtCursor { get; }
 
         public ReactiveCommand<MouseEventArgs> ThermalImageMouseMove { get; }
         public ReactiveCommand ThermalImageMouseRightUp { get; }
@@ -99,17 +99,17 @@ namespace PI450Viewer.ViewModels
             MinTempTotal = model.MinTempTotal;
             AverageTempTotal = model.AverageTempTotal;
 
-            CursorEnable = model.ToReactivePropertyAsSynchronized(m => m.CursorEnable);
+            CursorEnable = model.ToReactivePropertySlimAsSynchronized(m => m.CursorEnable);
 
-            FixAxes = model.ToReactivePropertyAsSynchronized(m => m.FixAxes);
+            FixAxes = model.ToReactivePropertySlimAsSynchronized(m => m.FixAxes);
             FixAxes.Subscribe(_ => model.SetPlotAxes());
-            AxesMinimum = model.ToReactivePropertyAsSynchronized(m => m.AxesMinimum);
+            AxesMinimum = model.ToReactivePropertySlimAsSynchronized(m => m.AxesMinimum);
             AxesMinimum.Subscribe(_ => model.SetPlotAxes());
-            AxesMaximum = model.ToReactivePropertyAsSynchronized(m => m.AxesMaximum);
+            AxesMaximum = model.ToReactivePropertySlimAsSynchronized(m => m.AxesMaximum);
             AxesMaximum.Subscribe(_ => model.SetPlotAxes());
 
-            IsConnected = new ReactiveProperty<bool>(false);
-            IsRunning = new ReactiveProperty<bool>(false);
+            IsConnected = new ReactivePropertySlim<bool>();
+            IsRunning = new ReactivePropertySlim<bool>();
 
             Connect = IsConnected.Select(b => !b).ToReactiveCommand();
             Connect.Subscribe(() =>
@@ -140,7 +140,7 @@ namespace PI450Viewer.ViewModels
                 IsRunning.Value = true;
             });
 
-            CursorYPos = new ReactiveProperty<double>(model.ViewY - Margin);
+            CursorYPos = new ReactivePropertySlim<double>(model.ViewY - Margin);
             CursorYDragDelta = new ReactiveCommand<DragDeltaEventArgs>();
             CursorYDragDelta.Subscribe(e =>
             {
@@ -150,7 +150,7 @@ namespace PI450Viewer.ViewModels
                 model.SetCursorX(x);
             });
 
-            CursorXPos = new ReactiveProperty<double>(model.ViewX - Margin);
+            CursorXPos = new ReactivePropertySlim<double>(model.ViewX - Margin);
             CursorXDragDelta = new ReactiveCommand<DragDeltaEventArgs>();
             CursorXDragDelta.Subscribe(e =>
             {
@@ -160,10 +160,10 @@ namespace PI450Viewer.ViewModels
                 model.SetCursorY(y);
             });
 
-            ThermalAtCursorVisible = new ReactiveProperty<Visibility>(Visibility.Hidden);
-            ThermalAtCursorX = new ReactiveProperty<double>();
-            ThermalAtCursorY = new ReactiveProperty<double>();
-            ThermalAtCursor = new ReactiveProperty<string>();
+            ThermalAtCursorVisible = new ReactivePropertySlim<Visibility>(Visibility.Hidden);
+            ThermalAtCursorX = new ReactivePropertySlim<double>();
+            ThermalAtCursorY = new ReactivePropertySlim<double>();
+            ThermalAtCursor = new ReactivePropertySlim<string>();
 
             ThermalImageMouseMove = new ReactiveCommand<MouseEventArgs>();
             ThermalImageMouseMove.Subscribe(e =>

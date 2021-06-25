@@ -55,30 +55,28 @@ namespace PI450Viewer.Models.Gain
 
     public class HoloSettingReactive : ReactivePropertyBase
     {
-
-
-        public ReactiveProperty<int> No { get; }
-        public ReactiveProperty<double> X { get; }
-        public ReactiveProperty<double> Y { get; }
-        public ReactiveProperty<double> Z { get; }
-        public ReactiveProperty<double> Amp { get; }
+        public ReactivePropertySlim<int> No { get; }
+        public ReactivePropertySlim<double> X { get; }
+        public ReactivePropertySlim<double> Y { get; }
+        public ReactivePropertySlim<double> Z { get; }
+        public ReactivePropertySlim<double> Amp { get; }
 
         public HoloSettingReactive(int no)
         {
-            No = new ReactiveProperty<int>(no);
-            X = new ReactiveProperty<double>();
-            Y = new ReactiveProperty<double>();
-            Z = new ReactiveProperty<double>();
-            Amp = new ReactiveProperty<double>(1.0f);
+            No = new ReactivePropertySlim<int>(no);
+            X = new ReactivePropertySlim<double>();
+            Y = new ReactivePropertySlim<double>();
+            Z = new ReactivePropertySlim<double>();
+            Amp = new ReactivePropertySlim<double>(1.0f);
         }
 
         public HoloSettingReactive(HoloSetting s)
         {
-            No = new ReactiveProperty<int>(s.No);
-            X = new ReactiveProperty<double>(s.X);
-            Y = new ReactiveProperty<double>(s.Y);
-            Z = new ReactiveProperty<double>(s.Z);
-            Amp = new ReactiveProperty<double>(s.Amp);
+            No = new ReactivePropertySlim<int>(s.No);
+            X = new ReactivePropertySlim<double>(s.X);
+            Y = new ReactivePropertySlim<double>(s.Y);
+            Z = new ReactivePropertySlim<double>(s.Z);
+            Amp = new ReactivePropertySlim<double>(s.Amp);
         }
     }
 

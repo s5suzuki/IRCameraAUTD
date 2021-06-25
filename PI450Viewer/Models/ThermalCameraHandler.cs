@@ -29,12 +29,12 @@ namespace PI450Viewer.Models
         private static readonly int ImageHeight = (int)(double)Application.Current.Resources["ThermalImageHeight"];
 
         [JsonIgnore]
-        public ReactiveProperty<Bitmap> PaletteImage { get; set; }
+        public ReactivePropertySlim<Bitmap> PaletteImage { get; set; }
         [JsonIgnore]
-        public ReactiveProperty<PlotModel> PlotXModel { get; }
+        public ReactivePropertySlim<PlotModel> PlotXModel { get; }
         [JsonIgnore]
 
-        public ReactiveProperty<PlotModel> PlotYModel { get; }
+        public ReactivePropertySlim<PlotModel> PlotYModel { get; }
         private readonly DataPoint[] _plotX;
         private readonly DataPoint[] _plotY;
 
@@ -61,25 +61,25 @@ namespace PI450Viewer.Models
         public double AxesMaximum { get; set; }
 
         [JsonIgnore]
-        public ReactiveProperty<double> MaxTempX { get; set; }
+        public ReactivePropertySlim<double> MaxTempX { get; set; }
         [JsonIgnore]
-        public ReactiveProperty<double> MinTempX { get; set; }
+        public ReactivePropertySlim<double> MinTempX { get; set; }
         [JsonIgnore]
-        public ReactiveProperty<double> AverageTempX { get; set; }
+        public ReactivePropertySlim<double> AverageTempX { get; set; }
 
         [JsonIgnore]
-        public ReactiveProperty<double> MaxTempY { get; set; }
+        public ReactivePropertySlim<double> MaxTempY { get; set; }
         [JsonIgnore]
-        public ReactiveProperty<double> MinTempY { get; set; }
+        public ReactivePropertySlim<double> MinTempY { get; set; }
         [JsonIgnore]
-        public ReactiveProperty<double> AverageTempY { get; set; }
+        public ReactivePropertySlim<double> AverageTempY { get; set; }
 
         [JsonIgnore]
-        public ReactiveProperty<double> MaxTempTotal { get; set; }
+        public ReactivePropertySlim<double> MaxTempTotal { get; set; }
         [JsonIgnore]
-        public ReactiveProperty<double> MinTempTotal { get; set; }
+        public ReactivePropertySlim<double> MinTempTotal { get; set; }
         [JsonIgnore]
-        public ReactiveProperty<double> AverageTempTotal { get; set; }
+        public ReactivePropertySlim<double> AverageTempTotal { get; set; }
 
         public ThermalCameraHandler()
         {
@@ -88,33 +88,33 @@ namespace PI450Viewer.Models
             AxesMinimum = 0;
             AxesMaximum = 100;
 
+            ViewY = (double)ImageWidth / 2;
+            ViewX = (double)ImageHeight / 2;
+
             CursorEnable = true;
 
             ThermalData = new ushort[ImageHeight, ImageWidth];
 
             _plotX = new DataPoint[ImageWidth];
-            PlotXModel = new ReactiveProperty<PlotModel>(new PlotModel());
+            PlotXModel = new ReactivePropertySlim<PlotModel>(new PlotModel());
 
             _plotY = new DataPoint[ImageHeight];
-            PlotYModel = new ReactiveProperty<PlotModel>(new PlotModel());
+            PlotYModel = new ReactivePropertySlim<PlotModel>(new PlotModel());
 
-            ReactiveProperty<IBaseTheme> baseTheme = General.Instance.BaseTheme;
-            baseTheme.Subscribe(t => { _color = t == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black; SetPlotAxes(); });
-
-            _color = baseTheme.Value == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black;
+            _color = General.Instance.BaseTheme.Value == MaterialDesignThemes.Wpf.Theme.Dark ? OxyColors.White : OxyColors.Black;
             SetPlotAxes();
 
-            PaletteImage = new ReactiveProperty<Bitmap>(new Bitmap(ImageWidth, ImageHeight));
+            PaletteImage = new ReactivePropertySlim<Bitmap>(new Bitmap(ImageWidth, ImageHeight));
 
-            MaxTempX = new ReactiveProperty<double>();
-            MinTempX = new ReactiveProperty<double>();
-            AverageTempX = new ReactiveProperty<double>();
-            MaxTempY = new ReactiveProperty<double>();
-            MinTempY = new ReactiveProperty<double>();
-            AverageTempY = new ReactiveProperty<double>();
-            MinTempTotal = new ReactiveProperty<double>();
-            MaxTempTotal = new ReactiveProperty<double>();
-            AverageTempTotal = new ReactiveProperty<double>();
+            MaxTempX = new ReactivePropertySlim<double>();
+            MinTempX = new ReactivePropertySlim<double>();
+            AverageTempX = new ReactivePropertySlim<double>();
+            MaxTempY = new ReactivePropertySlim<double>();
+            MinTempY = new ReactivePropertySlim<double>();
+            AverageTempY = new ReactivePropertySlim<double>();
+            MinTempTotal = new ReactivePropertySlim<double>();
+            MaxTempTotal = new ReactivePropertySlim<double>();
+            AverageTempTotal = new ReactivePropertySlim<double>();
         }
 
         public void SetPlotAxes()
@@ -276,7 +276,7 @@ namespace PI450Viewer.Models
             MinTempY.Value = minY;
 
             if (!CursorEnable) return;
-            
+
             var seriesX = new LineSeries();
             seriesX.Points.AddRange(_plotX);
             lock (PlotXModel.Value.SyncRoot)
@@ -339,6 +339,11 @@ namespace PI450Viewer.Models
         public void SetPaletteManualRange(double min, double max)
         {
             _camera.SetPaletteManualRange(min, max);
+        }
+
+        public void SetColor(OxyColor color)
+        {
+            _color = color;
         }
     }
 }
