@@ -1,30 +1,47 @@
-﻿/*
- * File: ThermalPaletteImage.cs
- * Project: libirimagerNet
- * Created Date: 18/04/2021
- * Author: Shun Suzuki
- * -----
- * Last Modified: 19/04/2021
- * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
- * -----
- * Copyright (c) 2021 Hapis Lab. All rights reserved.
- * 
- */
-
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace libirimagerNet
-{
-    public class ThermalPaletteImage
-    {
-        public ThermalPaletteImage(ushort[,] thermalImage, Bitmap paletteImage)
-        {
+namespace Evocortex.irDirectBinding {
+
+    /// <summary>
+    /// Container for thermal and false color palette image.
+    /// </summary>
+    public class ThermalPaletteImage {
+
+        /// <summary>
+        /// Constructor for thermal and false color palette image.
+        /// </summary>
+        /// <param name="thermalImage">The thermal image</param>
+        /// <param name="paletteImage">The palette image</param>
+        public ThermalPaletteImage(ushort[,] thermalImage, Bitmap paletteImage, EvoIRFrameMetadata irFrameMetadata) {
             ThermalImage = thermalImage;
             PaletteImage = paletteImage;
+            IRFrameMetadata = irFrameMetadata;
         }
 
-        public ushort[,] ThermalImage { get; }
+        /// <summary>
+        ///  Accessor to thermal image.
+        ///  Conversion to temperature values are to be performed as follows:
+        ///  t = ((double)data[row,column] - 1000.0) / 10.0
+        /// </summary>
+        /// <returns>Thermal Image as ushort[height, width]</returns>
+        public ushort[,] ThermalImage { get; private set; }
 
-        public Bitmap PaletteImage { get; }
+        /// <summary>
+        /// Accessor to false color coded palette image
+        /// </summary>
+        /// <returns>RGB palette image</returns>
+        public Bitmap PaletteImage { get; private set; }
+
+
+        /// <summary>
+        /// Accessor to ir frame metadata
+        /// </summary>
+        /// <returns>IR frame metadata</returns>
+        public EvoIRFrameMetadata IRFrameMetadata { get; private set; }
     }
 }

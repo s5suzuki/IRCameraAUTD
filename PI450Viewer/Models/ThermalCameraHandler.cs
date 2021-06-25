@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
-using libirimagerNet;
+using Evocortex.irDirectBinding;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;

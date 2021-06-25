@@ -1,4 +1,4 @@
-﻿using libirimagerNet;
+﻿using Evocortex.irDirectBinding;
 
 namespace PI450Viewer.Models.Camera
 {

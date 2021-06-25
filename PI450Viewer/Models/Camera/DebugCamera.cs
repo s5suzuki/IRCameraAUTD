@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading;
-using libirimagerNet;
+using Evocortex.irDirectBinding;
 
 namespace PI450Viewer.Models.Camera
 {
@@ -77,7 +77,7 @@ namespace PI450Viewer.Models.Camera
 
             Thread.Sleep(10);
 
-            return new ThermalPaletteImage(thermal, image);
+            return new ThermalPaletteImage(thermal, image, new EvoIRFrameMetadata());
         }
     }
 }

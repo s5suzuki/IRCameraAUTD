@@ -1,10 +1,10 @@
-﻿using libirimagerNet;
+﻿using Evocortex.irDirectBinding;
 
 namespace PI450Viewer.Models.Camera
 {
     public class Pi450 : ICamera
     {
-        private bool _isConnected = false;
+        private bool _isConnected;
 
         public void SetPaletteFormat(OptrisColoringPalette coloring, OptrisPaletteScalingMethod scaling)
         {
@@ -15,7 +15,7 @@ namespace PI450Viewer.Models.Camera
         public void SetPaletteManualRange(double min, double max)
         {
             if (!_isConnected) return;
-            IrDirectInterface.Instance.SetPaletteManualRange((float)min, (float)max);
+            IrDirectInterface.Instance.SetPaletteManualTemperatureRange((float)min, (float)max);
         }
 
         public void Connect(string xml)
@@ -32,7 +32,7 @@ namespace PI450Viewer.Models.Camera
 
         public ThermalPaletteImage GrabImage()
         {
-            return IrDirectInterface.Instance.ThermalPaletteImage;
+            return IrDirectInterface.Instance.GetThermalPaletteImage();
         }
     }
 }
