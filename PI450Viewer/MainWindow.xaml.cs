@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -179,12 +178,12 @@ namespace PI450Viewer
                 }
             });
 
-            Start = AUTDHandler.Instance.IsStarted.Select(x => !x).ToAsyncReactiveCommand();
+            Start = new AsyncReactiveCommand();
             Start.Subscribe(async _ =>
             {
                 if (!AUTDHandler.Instance.IsOpen.Value)
                 {
-                    var res = await Task.Run(() => AUTDHandler.Instance.Open());
+                    var res = AUTDHandler.Instance.Open();
                     if (res != null)
                     {
                         var vm = new ErrorDialogViewModel { Message = { Value = $"Failed to open AUTD: {res}.\nSee Link options." } };
@@ -196,10 +195,7 @@ namespace PI450Viewer
                         return;
                     }
                 }
-
-                AUTDHandler.Instance.AppendGain();
-                AUTDHandler.Instance.AppendModulation();
-
+                AUTDHandler.Instance.Start();
             });
 
             Resume = new[] { AUTDHandler.Instance.IsStarted, AUTDHandler.Instance.IsPaused }.CombineLatest(x => x[0] && x[1]).ToReactiveCommand();

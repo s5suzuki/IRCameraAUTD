@@ -56,6 +56,7 @@ namespace PI450Viewer.Models
 
         [DataMember]
         public double ManualPaletteMin { get; set; }
+        [DataMember]
         public double ManualPaletteMax { get; set; }
 
         private General()
