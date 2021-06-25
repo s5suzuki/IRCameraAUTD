@@ -56,7 +56,7 @@
                 Grid.Column="0"
                 Width="{StaticResource ThermalImageWidth}"
                 Height="{StaticResource ThermalImageHeight}"
-                Margin="20,20">
+                Margin="12,12">
                 <b:Interaction.Triggers>
                     <b:EventTrigger EventName="MouseMove">
                         <b:InvokeCommandAction Command="{Binding ThermalImageMouseMove}" PassEventArgsToCommand="True" />
@@ -152,7 +152,7 @@
                 Grid.Column="0"
                 Width="{StaticResource ThermalImageWidth}"
                 Height="auto"
-                Margin="20,20"
+                Margin="12,12"
                 Orientation="Vertical">
                 <oxy:PlotView
                     Width="{StaticResource ThermalImageWidth}"
@@ -198,7 +198,7 @@
                 Grid.Column="1"
                 Width="auto"
                 Height="{StaticResource ThermalImageHeight}"
-                Margin="20,20"
+                Margin="12,12"
                 Orientation="Horizontal">
                 <oxy:PlotView
                     Width="{StaticResource ThermalImageHeight}"
@@ -318,7 +318,7 @@
             <StackPanel
                 Grid.Row="1"
                 Grid.Column="1"
-                Margin="40,40"
+                Margin="12,12"
                 Orientation="Vertical">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="Total" />
@@ -359,30 +359,50 @@
                             Text="{Binding AverageTempTotal.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </StackPanel>
-
-                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <StackPanel
+                    Margin="0,12,0,0"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
                     <Button
-                        Margin="10,10"
                         Command="{Binding Connect}"
                         Content="Connect"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                     <Button
-                        Margin="10,10"
+                        Margin="12,0,0,0"
                         Command="{Binding Disconnect}"
                         Content="Disconnect"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                 </StackPanel>
-
-                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <StackPanel
+                    Margin="0,12,0,0"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
                     <Button
-                        Margin="10,10"
-                        Command="{Binding Pause}"
-                        Content="Pause"
+                        Command="{Binding Start}"
+                        Content="Start"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                     <Button
-                        Margin="10,10"
-                        Command="{Binding Resume}"
-                        Content="Resume"
+                        Margin="12,0,0,0"
+                        Command="{Binding Stop}"
+                        Content="Stop"
+                        Style="{StaticResource MaterialDesignRaisedButton}" />
+                </StackPanel>
+                <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
+                    <CheckBox IsChecked="{Binding IsDataSave.Value}">
+                        Save data to:
+                    </CheckBox>
+                    <TextBox
+                        Width="260"
+                        Margin="12,0,0,0"
+                        VerticalContentAlignment="Center"
+                        IsEnabled="{Binding IsDataSave.Value}"
+                        Text="{Binding DataFolder.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        TextAlignment="Left" />
+                    <Button
+                        Width="80"
+                        Margin="12,0,0,0"
+                        Command="{Binding SelectFolder}"
+                        Content="Select"
                         Style="{StaticResource MaterialDesignRaisedButton}" />
                 </StackPanel>
             </StackPanel>

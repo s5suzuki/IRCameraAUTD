@@ -62,7 +62,8 @@ namespace PI450Viewer
         public AsyncReactiveCommand Load { get; }
 
         public AsyncReactiveCommand Start { get; }
-        public ReactiveCommand Stop { get; }
+        public ReactiveCommand Resume { get; }
+        public ReactiveCommand Pause { get; }
 
         private MainWindowModel Model { get; }
 
@@ -178,7 +179,7 @@ namespace PI450Viewer
                 }
             });
 
-            Start = AUTDHandler.Instance.IsRunning.Select(x => !x).ToAsyncReactiveCommand();
+            Start = AUTDHandler.Instance.IsStarted.Select(x => !x).ToAsyncReactiveCommand();
             Start.Subscribe(async _ =>
             {
                 if (!AUTDHandler.Instance.IsOpen.Value)
@@ -196,14 +197,21 @@ namespace PI450Viewer
                     }
                 }
 
-                AUTDHandler.Instance.SendGain();
-                AUTDHandler.Instance.SendModulation();
+                AUTDHandler.Instance.AppendGain();
+                AUTDHandler.Instance.AppendModulation();
 
             });
-            Stop = AUTDHandler.Instance.IsRunning.Select(x => x).ToReactiveCommand();
-            Stop.Subscribe(_ =>
+
+            Resume = new[] { AUTDHandler.Instance.IsStarted, AUTDHandler.Instance.IsPaused }.CombineLatest(x => x[0] && x[1]).ToReactiveCommand();
+            Resume.Subscribe(_ =>
             {
-                AUTDHandler.Instance.Stop();
+                AUTDHandler.Instance.Resume();
+            });
+
+            Pause = new[] { AUTDHandler.Instance.IsStarted, AUTDHandler.Instance.IsPaused }.CombineLatest(x => x[0] && !x[1]).ToReactiveCommand();
+            Pause.Subscribe(_ =>
+            {
+                AUTDHandler.Instance.Pause();
             });
         }
     }

@@ -357,19 +357,23 @@
                                 Style="{StaticResource MaterialDesignFloatingActionButton}" />
                         </Grid>
                         <Grid>
-                            <materialDesign:PackIcon
-                                Width="{StaticResource MenuIconSize}"
-                                Height="{StaticResource MenuIconSize}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Kind="PlayArrow" />
                             <Button
                                 Width="{StaticResource MenuIconContainerSize}"
                                 Height="{StaticResource MenuIconContainerSize}"
+                                Padding="0"
                                 Background="{x:Null}"
                                 BorderBrush="{x:Null}"
                                 Command="{Binding Start}"
-                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
+                                Style="{StaticResource MaterialDesignFloatingActionButton}"
+                                ToolTip="Start AUTD">
+                                <materialDesign:PackIcon
+                                    Width="{StaticResource MenuIconSize}"
+                                    Height="{StaticResource MenuIconSize}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource MaterialDesignBody}"
+                                    Kind="PlayArrow" />
+                            </Button>
                         </Grid>
                         <Grid>
                             <Button
@@ -377,14 +381,35 @@
                                 Height="{StaticResource MenuIconContainerSize}"
                                 Background="{x:Null}"
                                 BorderBrush="{x:Null}"
-                                Command="{Binding Stop}"
-                                Style="{StaticResource MaterialDesignFloatingActionButton}" />
-                            <materialDesign:PackIcon
-                                Width="{StaticResource MenuIconSize}"
-                                Height="{StaticResource MenuIconSize}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Kind="Pause" />
+                                Command="{Binding Resume}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}"
+                                ToolTip="Stop AUTD">
+                                <materialDesign:PackIcon
+                                    Width="{StaticResource MenuIconSize}"
+                                    Height="{StaticResource MenuIconSize}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource MaterialDesignBody}"
+                                    Kind="StepForward" />
+                            </Button>
+                        </Grid>
+                        <Grid>
+                            <Button
+                                Width="{StaticResource MenuIconContainerSize}"
+                                Height="{StaticResource MenuIconContainerSize}"
+                                Background="{x:Null}"
+                                BorderBrush="{x:Null}"
+                                Command="{Binding Pause}"
+                                Style="{StaticResource MaterialDesignFloatingActionButton}"
+                                ToolTip="Start AUTD">
+                                <materialDesign:PackIcon
+                                    Width="{StaticResource MenuIconSize}"
+                                    Height="{StaticResource MenuIconSize}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Foreground="{DynamicResource MaterialDesignBody}"
+                                    Kind="Pause" />
+                            </Button>
                         </Grid>
                     </StackPanel>
                     <StackPanel

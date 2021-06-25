@@ -149,12 +149,15 @@ namespace PI450Viewer.Models
 
         [DataMember] public Seq Seq { get; set; } = new Seq();
 
+        [DataMember] public bool GainMode { get; set; }
+
         private AUTDSettings()
         {
             InterfaceName = string.Empty;
             GeometriesReactive = new ObservableCollectionWithItemNotify<GeometrySettingReactive>();
             Geometries = null;
             LinkSelected = LinkSelect.SOEM;
+            GainMode = true;
         }
 
         internal void Store()
@@ -177,6 +180,12 @@ namespace PI450Viewer.Models
             Instance.Seq.PointsReactive = new ObservableCollectionWithItemNotify<Vector3Reactive>();
             if (Instance.Seq.Points == null) return;
             foreach (var (s, i) in Instance.Seq.Points.Select((s, i) => (s, i))) Instance.Seq.PointsReactive.Add(new Vector3Reactive(i, s));
+
+            AUTDHandler.Instance.AppendModulation();
+            if (Instance.GainMode)
+                AUTDHandler.Instance.AppendGain();
+            else
+                AUTDHandler.Instance.AppendSeq();
         }
     }
 }

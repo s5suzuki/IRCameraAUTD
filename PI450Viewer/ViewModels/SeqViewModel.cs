@@ -51,7 +51,7 @@ namespace PI450Viewer.ViewModels
             SendSeqCommand.Subscribe(_ =>
             {
                 if (Points.Count == 0) return;
-                AUTDHandler.Instance.SendSeq();
+                AUTDHandler.Instance.AppendSeq();
             });
 
             Current = new ReactivePropertySlim<Vector3Reactive?>();

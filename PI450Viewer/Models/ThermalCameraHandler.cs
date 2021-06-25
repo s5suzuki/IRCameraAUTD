@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
@@ -40,7 +45,7 @@ namespace PI450Viewer.Models
 
         private Task? _thermalHandler;
         private bool _grabImage;
-        private bool _updateImage;
+        private bool _isStarted;
 
         [JsonIgnore]
         public ushort[,] ThermalData { get; set; }
@@ -81,6 +86,16 @@ namespace PI450Viewer.Models
         [JsonIgnore]
         public ReactivePropertySlim<double> AverageTempTotal { get; set; }
 
+        [DataMember]
+        public bool IsDataSave { get; set; }
+        [DataMember]
+        public string DataFolder { get; set; }
+
+        private string? _tmpPath;
+        private readonly object _lock = new object();
+        private readonly List<Task> _saveTasks = new List<Task>();
+        private bool _updateImage;
+
         public ThermalCameraHandler()
         {
             _camera = new DebugCamera();
@@ -115,6 +130,57 @@ namespace PI450Viewer.Models
             MinTempTotal = new ReactivePropertySlim<double>();
             MaxTempTotal = new ReactivePropertySlim<double>();
             AverageTempTotal = new ReactivePropertySlim<double>();
+
+            IsDataSave = true;
+            var basePath = AppDomain.CurrentDomain.BaseDirectory;
+            DataFolder = basePath != null ? Path.Combine(basePath, "data") : string.Empty;
+        }
+
+        private void SaveData()
+        {
+            var path = Path.Combine(_tmpPath!, DateTime.Now.Ticks + ".bin");
+            lock (_lock)
+                while (true)
+                {
+                    if (!File.Exists(path)) break;
+                    path = Path.Combine(_tmpPath!, DateTime.Now.Ticks + ".bin");
+                }
+            using FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
+            var bf = new BinaryFormatter();
+            bf.Serialize(fs, ThermalData);
+        }
+
+        private void FormatToCsv()
+        {
+            Parallel.ForEach(Directory.EnumerateFiles(_tmpPath!), binFile =>
+            {
+                if (binFile == null) return;
+
+                var fileName = binFile.Split('\\').Last();
+                var tick = fileName[..^4];
+
+                using var fis = new FileStream(binFile, FileMode.Open, FileAccess.Read);
+                var bf = new BinaryFormatter();
+                var data = (bf.Deserialize(fis) as ushort[,])!;
+
+                var sb = new StringBuilder();
+                for (var i = 0; i < data.GetLength(0); i++)
+                {
+                    for (var j = 0; j < data.GetLength(1); j++)
+                    {
+                        if (j != 0) sb.Append(",");
+                        sb.Append(ConvertToTemp(data[i, j]));
+                    }
+                    sb.AppendLine();
+                }
+
+                fis.Dispose();
+                File.Delete(binFile);
+                var path = Path.Combine(_tmpPath![..^4], tick + ".csv");
+                using var sw = new StreamWriter(path);
+                sw.Write(sb.ToString());
+            });
+            Directory.Delete(_tmpPath!);
         }
 
         public void SetPlotAxes()
@@ -188,12 +254,14 @@ namespace PI450Viewer.Models
         {
             _camera.Connect("generic.xml");
             _grabImage = true;
+            _isStarted = false;
             _updateImage = true;
             _thermalHandler = Task.Run(ImageGrabberMethod);
         }
 
         public async void Disconnect()
         {
+            _updateImage = false;
             _grabImage = false;
             if (_thermalHandler != null) await _thermalHandler;
             _camera.Disconnect();
@@ -203,10 +271,30 @@ namespace PI450Viewer.Models
         {
             _updateImage = false;
         }
-
         public void Resume()
         {
             _updateImage = true;
+        }
+
+        public void Start()
+        {
+            if (IsDataSave)
+            {
+                _tmpPath = Path.Combine(DataFolder, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"), "bin");
+                Directory.CreateDirectory(_tmpPath);
+            }
+            _isStarted = true;
+        }
+
+        public async Task Stop()
+        {
+            _isStarted = false;
+            if (IsDataSave)
+            {
+                await Task.WhenAll(_saveTasks);
+                _saveTasks.Clear();
+                FormatToCsv();
+            }
         }
 
         private async Task ImageGrabberMethod()
@@ -219,6 +307,7 @@ namespace PI450Viewer.Models
                     var images = _camera.GrabImage();
                     PaletteImage.Value = images.PaletteImage;
                     ThermalData = images.ThermalImage;
+                    if (_isStarted && IsDataSave) _saveTasks.Add(Task.Run(SaveData));
                     Update();
                 }
                 catch (Exception ex)

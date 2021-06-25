@@ -24,7 +24,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using MaterialDesignExtensions.Controls;
+using MaterialDesignThemes.Wpf;
 using OxyPlot;
+using PI450Viewer.Domain;
 using Image = System.Windows.Controls.Image;
 
 namespace PI450Viewer.ViewModels
@@ -61,8 +64,8 @@ namespace PI450Viewer.ViewModels
 
         public ReactiveCommand Connect { get; }
         public ReactiveCommand Disconnect { get; }
-        public ReactiveCommand Pause { get; }
-        public ReactiveCommand Resume { get; }
+        public ReactiveCommand Start { get; }
+        public AsyncReactiveCommand Stop { get; }
 
         public ReactivePropertySlim<bool> CursorEnable { get; }
         public ReactivePropertySlim<double> CursorXPos { get; }
@@ -79,6 +82,10 @@ namespace PI450Viewer.ViewModels
         public ReactiveCommand<MouseEventArgs> ThermalImageMouseMove { get; }
         public ReactiveCommand ThermalImageMouseRightUp { get; }
         public ReactiveCommand ThermalImageMouseRightDown { get; }
+
+        public ReactivePropertySlim<bool> IsDataSave { get; }
+        public ReactivePropertySlim<string> DataFolder { get; }
+        public AsyncReactiveCommand SelectFolder { get; }
 
         public HomeViewModel()
         {
@@ -116,7 +123,7 @@ namespace PI450Viewer.ViewModels
             {
                 model.Connect();
                 IsConnected.Value = true;
-                IsRunning.Value = true;
+                IsRunning.Value = false;
             });
             Disconnect = IsConnected.Select(b => b).ToReactiveCommand();
             Disconnect.Subscribe(() =>
@@ -125,19 +132,19 @@ namespace PI450Viewer.ViewModels
                 IsConnected.Value = false;
                 IsRunning.Value = false;
             });
-            Pause = new[] { IsConnected, IsRunning }
-                .CombineLatest(x => x.All(y => y)).ToReactiveCommand();
-            Pause.Subscribe(() =>
-            {
-                model.Pause();
-                IsRunning.Value = false;
-            });
-            Resume = new[] { IsConnected, IsRunning }
+            Start = new[] { IsConnected, IsRunning }
                 .CombineLatest(x => x[0] && !x[1]).ToReactiveCommand();
-            Resume.Subscribe(() =>
+            Start.Subscribe(() =>
             {
-                model.Resume();
+                model.Start();
                 IsRunning.Value = true;
+            });
+            Stop = new[] { IsConnected, IsRunning }
+                .CombineLatest(x => x.All(y => y)).ToAsyncReactiveCommand();
+            Stop.Subscribe(async () =>
+            {
+                await model.Stop();
+                IsRunning.Value = false;
             });
 
             CursorYPos = new ReactivePropertySlim<double>(model.ViewY - Margin);
@@ -194,6 +201,34 @@ namespace PI450Viewer.ViewModels
 
             ThermalImageMouseRightDown = new ReactiveCommand();
             ThermalImageMouseRightDown.Subscribe(() => ThermalAtCursorVisible.Value = Visibility.Visible);
+
+            IsDataSave = model.ToReactivePropertySlimAsSynchronized(m => m.IsDataSave);
+            DataFolder = model.ToReactivePropertySlimAsSynchronized(m => m.DataFolder);
+            SelectFolder = IsDataSave.Select(b => b).ToAsyncReactiveCommand();
+            SelectFolder.Subscribe(async () =>
+            {
+                var dialogArgs = new OpenDirectoryDialogArguments
+                {
+                    Width = 600,
+                    Height = 800,
+                    CreateNewDirectoryEnabled = true
+                };
+                var result = await OpenDirectoryDialog.ShowDialogAsync("MessageDialogHost", dialogArgs);
+                if (result.Canceled) return;
+                try
+                {
+                    DataFolder.Value = result.Directory;
+                }
+                catch
+                {
+                    var vm = new ErrorDialogViewModel { Message = { Value = "Failed to open folder." } };
+                    var dialog = new ErrorDialog
+                    {
+                        DataContext = vm
+                    };
+                    await DialogHost.Show(dialog, "MessageDialogHost");
+                }
+            });
         }
     }
 }

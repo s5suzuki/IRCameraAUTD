@@ -35,7 +35,7 @@ namespace PI450Viewer.ViewModels
             SendGainCommand = AUTDHandler.Instance.IsOpen.Select(b => b).ToReactiveCommand();
             SendGainCommand.Subscribe(_ =>
             {
-                AUTDHandler.Instance.SendGain();
+                AUTDHandler.Instance.AppendGain();
             });
 
             Dictionary<string, Page> pageCache = new Dictionary<string, Page>();

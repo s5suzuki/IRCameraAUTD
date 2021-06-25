@@ -33,7 +33,7 @@ namespace PI450Viewer.ViewModels
         public ModulationViewModel()
         {
             SendModulationCommand = AUTDHandler.Instance.IsOpen.Select(b => b).ToReactiveCommand();
-            SendModulationCommand.Subscribe(_ => AUTDHandler.Instance.SendModulation());
+            SendModulationCommand.Subscribe(_ => AUTDHandler.Instance.AppendModulation());
 
             Dictionary<string, Page> pageCache = new Dictionary<string, Page>();
             Page = new ReactivePropertySlim<Page>(new SineView());

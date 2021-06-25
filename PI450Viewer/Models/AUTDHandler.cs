@@ -27,13 +27,24 @@ namespace PI450Viewer.Models
 
         private readonly AUTD _autd;
         public ReactivePropertySlim<bool> IsOpen { get; }
-        public ReactivePropertySlim<bool> IsRunning { get; }
+        public ReactivePropertySlim<bool> IsStarted { get; }
+        public ReactivePropertySlim<bool> IsPaused { get; }
+
+        private AUTD3Sharp.Gain _gain;
+        private AUTD3Sharp.Modulation _mod;
+        private PointSequence _seq;
+
 
         private AUTDHandler()
         {
             _autd = new AUTD();
             IsOpen = new ReactivePropertySlim<bool>();
-            IsRunning = new ReactivePropertySlim<bool>();
+            IsStarted = new ReactivePropertySlim<bool>();
+            IsPaused = new ReactivePropertySlim<bool>();
+
+            _gain = AUTD3Sharp.Gain.Null();
+            _mod = AUTD3Sharp.Modulation.Static();
+            _seq = PointSequence.Create();
         }
 
         private void AddDevices()
@@ -80,10 +91,10 @@ namespace PI450Viewer.Models
             IsOpen.Value = false;
         }
 
-        public bool SendGain()
+        public void AppendGain()
         {
             var instance = AUTDSettings.Instance;
-            var gain = instance.GainSelect switch
+            _gain = instance.GainSelect switch
             {
                 GainSelect.FocalPoint => instance.Focus.ToGain(),
                 GainSelect.BesselBeam => instance.Bessel.ToGain(),
@@ -92,15 +103,13 @@ namespace PI450Viewer.Models
                 GainSelect.TransducerTest => instance.TransducerTest.ToGain(),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            var res = _autd.Send(gain);
-            IsRunning.Value = res;
-            return res;
+            AUTDSettings.Instance.GainMode = true;
         }
 
-        public bool SendModulation()
+        public void AppendModulation()
         {
             var instance = AUTDSettings.Instance;
-            var modulation = instance.ModulationSelect switch
+            _mod = instance.ModulationSelect switch
             {
                 ModulationSelect.Static => instance.Static.ToModulation(),
                 ModulationSelect.Sine => instance.Sine.ToModulation(),
@@ -108,22 +117,36 @@ namespace PI450Viewer.Models
                 ModulationSelect.Square => instance.Square.ToModulation(),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            return _autd.Send(modulation);
         }
 
-        public bool SendSeq()
+        public void AppendSeq()
         {
             var instance = AUTDSettings.Instance;
-            var seq = instance.Seq.ToPointSequence();
-            var res = _autd.Send(seq);
-            IsRunning.Value = res;
-            return res;
+            _seq = instance.Seq.ToPointSequence();
+            AUTDSettings.Instance.GainMode = false;
         }
 
-        public void Stop()
+        public bool Start()
         {
-            _autd.Pause();
-            IsRunning.Value = false;
+            bool r;
+            if (AUTDSettings.Instance.GainMode) r = _autd.Send(_gain, _mod);
+            else r = _autd.Send(_mod) && _autd.Send(_seq);
+            IsStarted.Value = r;
+            return r;
+        }
+
+        public bool Pause()
+        {
+            var r = _autd.Pause();
+            IsPaused.Value = r;
+            return r;
+        }
+
+        public bool Resume()
+        {
+            var r = _autd.Resume();
+            IsPaused.Value = !r;
+            return r;
         }
 
         public void Dispose()
