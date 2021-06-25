@@ -1,4 +1,4 @@
-# PI450
+# IRCameraAUTD
 
 Optris Pi 450 ir camera viewer with AUTD3 controller
 
