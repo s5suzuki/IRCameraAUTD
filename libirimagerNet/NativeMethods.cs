@@ -46,7 +46,7 @@ namespace libirimagerNet
         public static extern int evo_irimager_set_palette_scale(int scale);
 
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_set_palette_manual_temp_range(float min, float max);
+        public static extern int evo_irimager_set_temperature_range(float min, float max);
 
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_set_shutter_mode(int mode);

@@ -105,7 +105,7 @@ namespace PI450Viewer
                 var res = await DialogHost.Show(dialog, "MessageDialogHost");
                 if (res is bool quit && quit)
                 {
-                    ThermalCameraHandler.Instance.Disconnect();
+                    await ThermalCameraHandler.Instance.Disconnect();
                     AUTDHandler.Instance.Dispose();
                     SettingManager.SaveSetting("settings.json");
                     Application.Current.Shutdown();

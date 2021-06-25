@@ -4,7 +4,7 @@
  * Created Date: 18/04/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 24/06/2021
+ * Last Modified: 25/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -116,11 +116,10 @@ namespace libirimagerNet
             CheckResult(NativeMethods.evo_irimager_set_palette_scale((int)scale));
         }
 
-
         public void SetPaletteManualRange(float min, float max)
         {
             CheckConnectionState();
-            CheckResult(NativeMethods.evo_irimager_set_palette_manual_temp_range(min, max));
+            CheckResult(NativeMethods.evo_irimager_set_temperature_range(min, max));
         }
 
         private static void CheckResult(int result)

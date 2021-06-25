@@ -6,17 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="libirimager.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="libirimager.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="libirimager.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
