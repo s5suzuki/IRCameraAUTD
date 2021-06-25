@@ -59,12 +59,16 @@ namespace PI450Viewer.Models
         [DataMember]
         public double ManualPaletteMax { get; set; }
 
+        [DataMember]
+        public bool LinkAUTDThermo { get; set; }
+
         private General()
         {
             AngleUnit = AngleUnit.Radian;
             Palette = OptrisColoringPalette.Iron;
             Scaling = OptrisPaletteScalingMethod.MinMax;
             BaseTheme = new ReactivePropertySlim<IBaseTheme>(MaterialDesignThemes.Wpf.Theme.Dark);
+            LinkAUTDThermo = true;
         }
 
         public double ConvertAngle(double angle)

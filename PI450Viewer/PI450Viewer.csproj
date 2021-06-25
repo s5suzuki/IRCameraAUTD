@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AUTD3Sharp" Version="1.4.2" />
+    <PackageReference Include="AUTD3Sharp" Version="1.4.3" />
     <PackageReference Include="gong-wpf-dragdrop" Version="2.3.2" />
     <PackageReference Include="MaterialDesignExtensions" Version="3.3.0" />
     <PackageReference Include="MaterialDesignThemes" Version="4.1.0" />
@@ -20,5 +20,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\libirimagerNet\libirimagerNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Formats.def">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="generic.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

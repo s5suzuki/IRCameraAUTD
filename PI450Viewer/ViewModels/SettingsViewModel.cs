@@ -33,6 +33,7 @@ namespace PI450Viewer.ViewModels
 
         public ReactivePropertySlim<double> ManualPaletteMin { get; }
         public ReactivePropertySlim<double> ManualPaletteMax { get; }
+        public ReactivePropertySlim<bool> LinkAUTDThermo { get; }
 
         public SettingsViewModel()
         {
@@ -46,6 +47,8 @@ namespace PI450Viewer.ViewModels
             ManualPaletteMax = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.ManualPaletteMax);
             ManualPaletteMin.Subscribe(p => ThermalCameraHandler.Instance.SetPaletteManualRange(p, ManualPaletteMax.Value));
             ManualPaletteMax.Subscribe(p => ThermalCameraHandler.Instance.SetPaletteManualRange(ManualPaletteMin.Value, p));
+
+            LinkAUTDThermo = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.LinkAUTDThermo);
         }
     }
 }

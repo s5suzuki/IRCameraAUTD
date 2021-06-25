@@ -141,6 +141,25 @@
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
+            <GroupBox Margin="12,12,0,0" Style="{DynamicResource MaterialDesignCardGroupBox}">
+                <GroupBox.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource HeaderFontSize}"
+                            Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                            Text="AUTD setting" />
+                    </DataTemplate>
+                </GroupBox.HeaderTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox
+                        HorizontalContentAlignment="Right"
+                        VerticalContentAlignment="Center"
+                        Content="Link with camera"
+                        FontSize="{StaticResource FontSize}"
+                        IsChecked="{Binding LinkAUTDThermo.Value}" />
+                </StackPanel>
+            </GroupBox>
         </WrapPanel>
     </Grid>
 </Page>

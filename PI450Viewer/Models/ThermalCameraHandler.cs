@@ -10,11 +10,9 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using libirimagerNet;
-using MaterialDesignThemes.Wpf;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using PI450Viewer.Domain;
 using PI450Viewer.Helpers;
 using PI450Viewer.Models.Camera;
 using Reactive.Bindings;
@@ -98,7 +96,7 @@ namespace PI450Viewer.Models
 
         public ThermalCameraHandler()
         {
-            _camera = new DebugCamera();
+            _camera = new Pi450();
 
             AxesMinimum = 0;
             AxesMaximum = 100;
@@ -259,7 +257,7 @@ namespace PI450Viewer.Models
             _thermalHandler = Task.Run(ImageGrabberMethod);
         }
 
-        public async void Disconnect()
+        public async Task Disconnect()
         {
             _updateImage = false;
             _grabImage = false;
@@ -297,29 +295,17 @@ namespace PI450Viewer.Models
             }
         }
 
-        private async Task ImageGrabberMethod()
+        private void ImageGrabberMethod()
         {
             while (_grabImage)
             {
                 if (!_updateImage) continue;
-                try
-                {
-                    var images = _camera.GrabImage();
-                    PaletteImage.Value = images.PaletteImage;
-                    ThermalData = images.ThermalImage;
-                    if (_isStarted && IsDataSave) _saveTasks.Add(Task.Run(SaveData));
-                    Update();
-                }
-                catch (Exception ex)
-                {
-                    var vm = new ErrorDialogViewModel { Message = { Value = ex.Message } };
-                    var dialog = new ErrorDialog
-                    {
-                        DataContext = vm
-                    };
-                    await DialogHost.Show(dialog, "MessageDialogHost");
-                    _grabImage = false;
-                }
+
+                var images = _camera.GrabImage();
+                PaletteImage.Value = images.PaletteImage;
+                ThermalData = images.ThermalImage;
+                if (_isStarted && IsDataSave) _saveTasks.Add(Task.Run(SaveData));
+                Update();
             }
         }
 

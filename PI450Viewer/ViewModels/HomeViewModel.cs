@@ -62,8 +62,8 @@ namespace PI450Viewer.ViewModels
         public ReactivePropertySlim<bool> IsConnected { get; }
         public ReactivePropertySlim<bool> IsRunning { get; }
 
-        public ReactiveCommand Connect { get; }
-        public ReactiveCommand Disconnect { get; }
+        public AsyncReactiveCommand Connect { get; }
+        public AsyncReactiveCommand Disconnect { get; }
         public ReactiveCommand Start { get; }
         public AsyncReactiveCommand Stop { get; }
 
@@ -118,24 +118,49 @@ namespace PI450Viewer.ViewModels
             IsConnected = new ReactivePropertySlim<bool>();
             IsRunning = new ReactivePropertySlim<bool>();
 
-            Connect = IsConnected.Select(b => !b).ToReactiveCommand();
-            Connect.Subscribe(() =>
+            Connect = IsConnected.Select(b => !b).ToAsyncReactiveCommand();
+            Connect.Subscribe(async () =>
             {
-                model.Connect();
-                IsConnected.Value = true;
-                IsRunning.Value = false;
+                try
+                {
+                    model.Connect();
+                    IsConnected.Value = true;
+                    IsRunning.Value = false;
+                }
+                catch (Exception ex)
+                {
+                    var vm = new ErrorDialogViewModel { Message = { Value = ex.Message } };
+                    var dialog = new ErrorDialog
+                    {
+                        DataContext = vm
+                    };
+                    await DialogHost.Show(dialog, "MessageDialogHost");
+                }
             });
-            Disconnect = IsConnected.Select(b => b).ToReactiveCommand();
-            Disconnect.Subscribe(() =>
+            Disconnect = IsConnected.Select(b => b).ToAsyncReactiveCommand();
+            Disconnect.Subscribe(async () =>
             {
-                model.Disconnect();
-                IsConnected.Value = false;
-                IsRunning.Value = false;
+                try
+                {
+                    await model.Disconnect();
+                    IsConnected.Value = false;
+                    IsRunning.Value = false;
+                }
+                catch (Exception ex)
+                {
+                    var vm = new ErrorDialogViewModel { Message = { Value = ex.Message } };
+                    var dialog = new ErrorDialog
+                    {
+                        DataContext = vm
+                    };
+                    await DialogHost.Show(dialog, "MessageDialogHost");
+                }
             });
             Start = new[] { IsConnected, IsRunning }
                 .CombineLatest(x => x[0] && !x[1]).ToReactiveCommand();
             Start.Subscribe(() =>
             {
+                if (General.Instance.LinkAUTDThermo) AUTDHandler.Instance.Start();
                 model.Start();
                 IsRunning.Value = true;
             });
@@ -143,6 +168,7 @@ namespace PI450Viewer.ViewModels
                 .CombineLatest(x => x.All(y => y)).ToAsyncReactiveCommand();
             Stop.Subscribe(async () =>
             {
+                if (General.Instance.LinkAUTDThermo) AUTDHandler.Instance.Pause();
                 await model.Stop();
                 IsRunning.Value = false;
             });
