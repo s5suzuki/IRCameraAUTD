@@ -18,7 +18,6 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -59,8 +58,7 @@ namespace PI450Viewer.ViewModels
 
         public ReactivePropertySlim<Bitmap> PaletteImage { get; }
 
-        public ReactivePropertySlim<bool> IsConnected { get; }
-        public ReactivePropertySlim<bool> IsRunning { get; }
+        public ReactivePropertySlim<CameraState> CameraState { get; }
 
         public AsyncReactiveCommand Connect { get; }
         public AsyncReactiveCommand Disconnect { get; }
@@ -115,17 +113,14 @@ namespace PI450Viewer.ViewModels
             AxesMaximum = model.ToReactivePropertySlimAsSynchronized(m => m.AxesMaximum);
             AxesMaximum.Subscribe(_ => model.SetPlotAxes());
 
-            IsConnected = new ReactivePropertySlim<bool>();
-            IsRunning = model.IsStarted;
+            CameraState = model.CameraState;
 
-            Connect = IsConnected.Select(b => !b).ToAsyncReactiveCommand();
+            Connect = CameraState.Select(state => state == Models.CameraState.Disconnected).ToAsyncReactiveCommand();
             Connect.Subscribe(async () =>
             {
                 try
                 {
                     model.Connect();
-                    IsConnected.Value = true;
-                    IsRunning.Value = false;
                 }
                 catch (Exception ex)
                 {
@@ -137,14 +132,12 @@ namespace PI450Viewer.ViewModels
                     await DialogHost.Show(dialog, "MessageDialogHost");
                 }
             });
-            Disconnect = IsConnected.Select(b => b).ToAsyncReactiveCommand();
+            Disconnect = CameraState.Select(state => state != Models.CameraState.Disconnected).ToAsyncReactiveCommand();
             Disconnect.Subscribe(async () =>
             {
                 try
                 {
                     await model.Disconnect();
-                    IsConnected.Value = false;
-                    IsRunning.Value = false;
                 }
                 catch (Exception ex)
                 {
@@ -156,21 +149,19 @@ namespace PI450Viewer.ViewModels
                     await DialogHost.Show(dialog, "MessageDialogHost");
                 }
             });
-            Start = new[] { IsConnected, IsRunning }
-                .CombineLatest(x => x[0] && !x[1]).ToReactiveCommand();
+            Start = CameraState
+                .Select(state => state == Models.CameraState.Idle).ToReactiveCommand();
             Start.Subscribe(() =>
             {
                 if (General.Instance.LinkAUTDThermo) AUTDHandler.Instance.Start();
                 model.Start();
-                IsRunning.Value = true;
             });
-            Stop = new[] { IsConnected, IsRunning }
-                .CombineLatest(x => x.All(y => y)).ToAsyncReactiveCommand();
+            Stop = CameraState
+                .Select(state => state == Models.CameraState.Running).ToAsyncReactiveCommand();
             Stop.Subscribe(async () =>
             {
                 if (General.Instance.LinkAUTDThermo) AUTDHandler.Instance.Pause();
                 await model.Stop();
-                IsRunning.Value = false;
             });
 
             CursorYPos = new ReactivePropertySlim<double>(model.ViewY - Margin);

@@ -32,6 +32,14 @@ using Reactive.Bindings;
 
 namespace PI450Viewer.Models
 {
+    public enum CameraState
+    {
+        Idle,
+        Running,
+        WritingData,
+        Disconnected
+    }
+
     [DataContract]
     public class ThermalCameraHandler : ReactivePropertyBase
     {
@@ -57,7 +65,7 @@ namespace PI450Viewer.Models
         private bool _grabImage;
 
         [JsonIgnore]
-        public ReactivePropertySlim<bool> IsStarted { get; set; }
+        public ReactivePropertySlim<CameraState> CameraState { get; set; }
 
         [JsonIgnore]
         public ushort[,] ThermalData { get; set; }
@@ -149,7 +157,7 @@ namespace PI450Viewer.Models
             var basePath = AppDomain.CurrentDomain.BaseDirectory;
             DataFolder = basePath != null ? Path.Combine(basePath, "data") : string.Empty;
 
-            IsStarted = new ReactivePropertySlim<bool>();
+            CameraState = new ReactivePropertySlim<CameraState>(Models.CameraState.Disconnected);
         }
 
         private void SaveData()
@@ -268,19 +276,22 @@ namespace PI450Viewer.Models
 
         public void Connect()
         {
+            if (CameraState.Value != Models.CameraState.Disconnected) return;
             _camera.Connect("generic.xml");
             _grabImage = true;
-            IsStarted.Value = false;
+            CameraState.Value = Models.CameraState.Idle;
             _updateImage = true;
             _thermalHandler = Task.Run(ImageGrabberMethod);
         }
 
         public async Task Disconnect()
         {
+            if (CameraState.Value == Models.CameraState.Disconnected) return;
             _updateImage = false;
             _grabImage = false;
             if (_thermalHandler != null) await _thermalHandler;
             _camera.Disconnect();
+            CameraState.Value = Models.CameraState.Disconnected;
         }
 
         public void Pause()
@@ -294,26 +305,27 @@ namespace PI450Viewer.Models
 
         public void Start()
         {
-            if (IsStarted.Value) return;
+            if (CameraState.Value != Models.CameraState.Idle) return;
             if (IsDataSave)
             {
                 _tmpPath = Path.Combine(DataFolder, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"), "bin");
                 Directory.CreateDirectory(_tmpPath);
                 _timeout = General.Instance.TimeoutMs == 0 ? null : Task.Delay(General.Instance.TimeoutMs);
             }
-            IsStarted.Value = true;
+            CameraState.Value = Models.CameraState.Running;
         }
 
         public async Task Stop()
         {
-            if (!IsStarted.Value) return;
+            if (CameraState.Value != Models.CameraState.Running) return;
             if (IsDataSave)
             {
+                CameraState.Value = Models.CameraState.WritingData;
                 await Task.WhenAll(_saveTasks);
                 _saveTasks.Clear();
                 FormatToCsv();
             }
-            IsStarted.Value = false;
+            CameraState.Value = Models.CameraState.Idle;
         }
 
         private void ImageGrabberMethod()
@@ -325,7 +337,7 @@ namespace PI450Viewer.Models
                 var images = _camera.GrabImage();
                 PaletteImage.Value = images.PaletteImage;
                 ThermalData = images.ThermalImage;
-                if (IsStarted.Value && IsDataSave)
+                if (CameraState.Value == Models.CameraState.Running && IsDataSave)
                 {
                     _saveTasks.Add(Task.Run(SaveData));
                     if (_timeout?.IsCompleted ?? false) Application.Current.Dispatcher.Invoke(Stop);
