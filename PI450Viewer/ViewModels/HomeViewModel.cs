@@ -4,7 +4,7 @@
  * Created Date: 29/03/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 25/06/2021
+ * Last Modified: 26/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -116,7 +116,7 @@ namespace PI450Viewer.ViewModels
             AxesMaximum.Subscribe(_ => model.SetPlotAxes());
 
             IsConnected = new ReactivePropertySlim<bool>();
-            IsRunning = new ReactivePropertySlim<bool>();
+            IsRunning = model.IsStarted;
 
             Connect = IsConnected.Select(b => !b).ToAsyncReactiveCommand();
             Connect.Subscribe(async () =>

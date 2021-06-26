@@ -4,7 +4,7 @@
  * Created Date: 25/06/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 25/06/2021
+ * Last Modified: 26/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -22,7 +22,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
-using Evocortex.irDirectBinding;
+using libirimagerNet;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
@@ -49,14 +49,15 @@ namespace PI450Viewer.Models
         [JsonIgnore]
         public ReactivePropertySlim<PlotModel> PlotXModel { get; }
         [JsonIgnore]
-
         public ReactivePropertySlim<PlotModel> PlotYModel { get; }
         private readonly DataPoint[] _plotX;
         private readonly DataPoint[] _plotY;
 
         private Task? _thermalHandler;
         private bool _grabImage;
-        private bool _isStarted;
+
+        [JsonIgnore]
+        public ReactivePropertySlim<bool> IsStarted { get; set; }
 
         [JsonIgnore]
         public ushort[,] ThermalData { get; set; }
@@ -107,6 +108,8 @@ namespace PI450Viewer.Models
         private readonly List<Task> _saveTasks = new List<Task>();
         private bool _updateImage;
 
+        private Task? _timeout;
+
         public ThermalCameraHandler()
         {
             _camera = new Pi450();
@@ -145,6 +148,8 @@ namespace PI450Viewer.Models
             IsDataSave = true;
             var basePath = AppDomain.CurrentDomain.BaseDirectory;
             DataFolder = basePath != null ? Path.Combine(basePath, "data") : string.Empty;
+
+            IsStarted = new ReactivePropertySlim<bool>();
         }
 
         private void SaveData()
@@ -265,7 +270,7 @@ namespace PI450Viewer.Models
         {
             _camera.Connect("generic.xml");
             _grabImage = true;
-            _isStarted = false;
+            IsStarted.Value = false;
             _updateImage = true;
             _thermalHandler = Task.Run(ImageGrabberMethod);
         }
@@ -289,23 +294,26 @@ namespace PI450Viewer.Models
 
         public void Start()
         {
+            if (IsStarted.Value) return;
             if (IsDataSave)
             {
                 _tmpPath = Path.Combine(DataFolder, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"), "bin");
                 Directory.CreateDirectory(_tmpPath);
+                _timeout = General.Instance.TimeoutMs == 0 ? null : Task.Delay(General.Instance.TimeoutMs);
             }
-            _isStarted = true;
+            IsStarted.Value = true;
         }
 
         public async Task Stop()
         {
-            _isStarted = false;
+            if (!IsStarted.Value) return;
             if (IsDataSave)
             {
                 await Task.WhenAll(_saveTasks);
                 _saveTasks.Clear();
                 FormatToCsv();
             }
+            IsStarted.Value = false;
         }
 
         private void ImageGrabberMethod()
@@ -317,7 +325,11 @@ namespace PI450Viewer.Models
                 var images = _camera.GrabImage();
                 PaletteImage.Value = images.PaletteImage;
                 ThermalData = images.ThermalImage;
-                if (_isStarted && IsDataSave) _saveTasks.Add(Task.Run(SaveData));
+                if (IsStarted.Value && IsDataSave)
+                {
+                    _saveTasks.Add(Task.Run(SaveData));
+                    if (_timeout?.IsCompleted ?? false) Application.Current.Dispatcher.Invoke(Stop);
+                }
                 Update();
             }
         }

@@ -4,7 +4,7 @@
  * Created Date: 29/03/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 25/06/2021
+ * Last Modified: 26/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -14,7 +14,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using Evocortex.irDirectBinding;
+using libirimagerNet;
 using MaterialDesignThemes.Wpf;
 using PI450Viewer.Helpers;
 using Reactive.Bindings;
@@ -62,6 +62,9 @@ namespace PI450Viewer.Models
         [DataMember]
         public bool LinkAUTDThermo { get; set; }
 
+        [DataMember]
+        public int TimeoutMs { get; set; }
+
         private General()
         {
             AngleUnit = AngleUnit.Radian;
@@ -71,6 +74,8 @@ namespace PI450Viewer.Models
             LinkAUTDThermo = true;
             ManualPaletteMin = 0;
             ManualPaletteMax = 100;
+
+            TimeoutMs = 0;
         }
 
         public double ConvertAngle(double angle)

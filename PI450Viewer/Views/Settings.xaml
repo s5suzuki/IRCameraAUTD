@@ -4,8 +4,8 @@
     Created Date: 29/03/2021
     Author: Shun Suzuki
     =====
-    Last Modified: 24/06/2021
-    Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
+Last Modified: 26/06/2021
+Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
     =====
     Copyright (c) 2021 Hapis Lab. All rights reserved.
 -->
@@ -138,6 +138,22 @@
                             HorizontalContentAlignment="Right"
                             FontSize="{StaticResource FontSize}"
                             Text="{Binding ManualPaletteMax.Value, Converter={StaticResource FloatConverter}}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Width="160"
+                            VerticalAlignment="Center"
+                            FontSize="{StaticResource FontSize}"
+                            Text="Measure timeout [ms]: "
+                            TextAlignment="Right"
+                            ToolTip="if 0, measuring keep going unless you manually stop" />
+                        <TextBox
+                            Width="80"
+                            HorizontalAlignment="Right"
+                            HorizontalContentAlignment="Right"
+                            FontSize="{StaticResource FontSize}"
+                            Text="{Binding TimeoutMs.Value}" />
                     </StackPanel>
                 </StackPanel>
             </GroupBox>
