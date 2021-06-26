@@ -22,7 +22,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
-using Evocortex.irDirectBinding;
+using libirimagerNet;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;

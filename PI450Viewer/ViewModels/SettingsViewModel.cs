@@ -12,7 +12,7 @@
  */
 
 using System;
-using Evocortex.irDirectBinding;
+using libirimagerNet;
 using PI450Viewer.Helpers;
 using PI450Viewer.Models;
 using Reactive.Bindings;

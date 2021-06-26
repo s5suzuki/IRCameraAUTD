@@ -4,7 +4,7 @@
  * Created Date: 25/06/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 25/06/2021
+ * Last Modified: 26/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -17,7 +17,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Evocortex.irDirectBinding;
+using libirimagerNet;
 
 namespace PI450Viewer.Models.Camera
 {
@@ -90,7 +90,7 @@ namespace PI450Viewer.Models.Camera
 
             Thread.Sleep(10);
 
-            return new ThermalPaletteImage(thermal, image, new EvoIRFrameMetadata());
+            return new ThermalPaletteImage(thermal, image, new EvoIrFrameMetadata());
         }
     }
 }

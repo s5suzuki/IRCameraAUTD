@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Evocortex.irDirectBinding {
+namespace libirimagerNet
+{
 
 
     /// <summary>
     /// IR Flag States
     /// </summary>
-    public enum EvoIRFlagState
+    public enum EvoIrFlagState
     {
         Open, /*!< Flag is open */
         Close,/*!< Flag is closed */
@@ -25,28 +22,29 @@ namespace Evocortex.irDirectBinding {
     /// </summary>
     /// 
     [StructLayout(LayoutKind.Sequential)]
-    public struct EvoIRFrameMetadata
+    public readonly struct EvoIrFrameMetadata
     {
-        uint counter;     /*!< Consecutively numbered for each received frame */
-        uint counterHW;   /*!< Hardware counter received from device */
-        long timestamp;      /*!< Time stamp in UNITS (10000000 per second) */
-        long timestampMedia;
-        EvoIRFlagState flagState; /*!< State of shutter flag at capturing time */
-        float tempChip;           /*!< Chip temperature */
-        float tempFlag;           /*!< Shutter flag temperature */
-        float tempBox;            /*!< Temperature inside camera housing */
+        private readonly uint counter;     /*!< Consecutively numbered for each received frame */
+        private readonly uint counterHW;   /*!< Hardware counter received from device */
+        private readonly long timestamp;      /*!< Time stamp in UNITS (10000000 per second) */
+        private readonly long timestampMedia;
+        private readonly EvoIrFlagState flagState; /*!< State of shutter flag at capturing time */
+        private readonly float tempChip;           /*!< Chip temperature */
+        private readonly float tempFlag;           /*!< Shutter flag temperature */
+        private readonly float tempBox;            /*!< Temperature inside camera housing */
     }
 
-    internal class IrDirectInterfaceInvoke {
+    internal class IrDirectInterfaceInvoke
+    {
         /**
          * @brief Initializes an IRImager instance connected to this computer via USB
          * @param[in] xml_config path to xml config
-         * @param[in] formats_def path to folder containing formants.def (for default path use: "")
+         * @param[in] formats_def path to folder containing formats.def (for default path use: "")
          * @param[in] log_file path for log file. Set to null or "" for disable logging.
          * @return 0 on success, -1 on error
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int evo_irimager_usb_init(string xml_config, string formats_def, string log_file);
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int evo_irimager_usb_init(string xmlConfig, string formatsDef, string logFile);
 
         /**
          * @brief Initializes the TCP connection to the daemon process (non-blocking)
@@ -54,14 +52,14 @@ namespace Evocortex.irDirectBinding {
          * @param port Port of daemon, default 1337
          * @return  error code: 0 on success, -1 on host not found (wrong IP, daemon not running), -2 on fatal error
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_tcp_init(string ip, int port);
 
         /**
          * @brief Disconnects the camera, either connected via USB or TCP
          * @return 0 on success, -1 on error
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_terminate();
 
         /**
@@ -70,7 +68,7 @@ namespace Evocortex.irDirectBinding {
          * @param[out] h height
          * @return 0 on success, -1 on error
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_get_thermal_image_size(out int w, out int h);
 
         /**
@@ -79,7 +77,7 @@ namespace Evocortex.irDirectBinding {
          * @param[out] h height
          * @return 0 on success, -1 on error
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_get_palette_image_size(out int w, out int h);
 
         /**
@@ -91,7 +89,7 @@ namespace Evocortex.irDirectBinding {
          * @param[out] data pointer to unsigned short array allocate by the user (size of w * h)
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_get_thermal_image(out int w, out int h, ushort[,] data);
 
         /**
@@ -102,7 +100,7 @@ namespace Evocortex.irDirectBinding {
          * @param[out] data pointer to unsigned char array allocate by the user (size of 3 * w * h)
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_get_palette_image(out int w, out int h, IntPtr data);
 
         /**
@@ -115,8 +113,8 @@ namespace Evocortex.irDirectBinding {
          * @param[out] data_p data pointer to unsigned char array allocate by the user (size of 3 * w * h)
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int evo_irimager_get_thermal_palette_image(int w_t, int h_t, ushort[,] data_t, int w_p, int h_p, IntPtr data_p);
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int evo_irimager_get_thermal_palette_image(int wT, int hT, ushort[,] dataT, int wP, int hP, IntPtr dataP);
 
         /**
          * @brief Accessor to thermal image by reference
@@ -129,7 +127,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_get_thermal_image_metadata(out int w, out int h, ushort[,] data, out EvoIRFrameMetadata metadata);
+        public static extern int evo_irimager_get_thermal_image_metadata(out int w, out int h, ushort[,] data, out EvoIrFrameMetadata metadata);
 
         /**
          * @brief Accessor to an RGB palette image by reference
@@ -141,7 +139,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_get_palette_image_metadata(out int w, out int h, IntPtr data, out EvoIRFrameMetadata metadata);
+        public static extern int evo_irimager_get_palette_image_metadata(out int w, out int h, IntPtr data, out EvoIrFrameMetadata metadata);
 
         /**
          * @brief Accessor to an RGB palette image and a thermal image by reference
@@ -155,7 +153,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_get_thermal_palette_image_metadata(int w_t, int h_t, ushort[,] data_t, int w_p, int h_p, IntPtr data_p, out EvoIRFrameMetadata metadata);
+        public static extern int evo_irimager_get_thermal_palette_image_metadata(int wT, int hT, ushort[,] dataT, int wP, int hP, IntPtr dataP, out EvoIrFrameMetadata metadata);
 
         /**
          * @brief sets palette format to daemon.
@@ -175,7 +173,7 @@ namespace Evocortex.irDirectBinding {
          * @param id palette id
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_set_palette(int id);
 
         /**
@@ -188,7 +186,7 @@ namespace Evocortex.irDirectBinding {
          * @param scale scaling method id
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_set_palette_scale(int scale);
 
         /**
@@ -205,22 +203,22 @@ namespace Evocortex.irDirectBinding {
          * @param mode 0 means manual control, 1 means automode
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_set_shutter_mode(int mode);
 
         /**
          * @brief forces a shutter flag cycle
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_trigger_shutter_flag();
 
         /**
-         * @brief sets the minimum and maximum remperature range to the camera (also configurable in xml-config)
+         * @brief sets the minimum and maximum temperature range to the camera (also configurable in xml-config)
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
-        public static extern int evo_irimager_set_temperature_range(int t_min, int t_max);
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int evo_irimager_set_temperature_range(int tMin, int tMax);
 
         /**
          * @brief sets radiation properties, i.e. emissivity and transmissivity parameters (not implemented for TCP connection, usb mode only)
@@ -229,7 +227,7 @@ namespace Evocortex.irDirectBinding {
          * @param[in] tAmbient ambient temperature, setting invalid values (below -273,15 degrees) forces the library to take its own measurement values.
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
-        [DllImport("libirimager.dll", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int evo_irimager_set_radiation_parameters(float emissivity, float transmissivity, float tAmbient = -999.0f);
 
 
@@ -240,12 +238,12 @@ namespace Evocortex.irDirectBinding {
         /**
          * @brief Initializes an IRImager instance connected to this computer via USB for multiple cameras
          * @param[in] xml_config path to xml config
-         * @param[in] formats_def path to folder containing formants.def (for default path use: "")
+         * @param[in] formats_def path to folder containing formats.def (for default path use: "")
          * @param[in] log_file path for log file. Set to null or "" for disable logging.
          * @return 0 on success, -1 on error
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_multi_usb_init(out uint outCamId, string xml_config, string formats_def, string log_file);
+        public static extern int evo_irimager_multi_usb_init(out uint outCamId, string xmlConfig, string formatsDef, string logFile);
 
         /**
          * @brief Initializes the TCP connection to the daemon process (non-blocking) for multiple cameras
@@ -304,7 +302,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_multi_get_thermal_image_metadata(uint camId, out int w, out int h, ushort[,] data, out EvoIRFrameMetadata metadata);
+        public static extern int evo_irimager_multi_get_thermal_image_metadata(uint camId, out int w, out int h, ushort[,] data, out EvoIrFrameMetadata metadata);
 
         /**
          * @brief Accessor to an RGB palette image by reference for multiple cameras
@@ -327,7 +325,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_multi_get_palette_image_metadata(uint camId, out int w, out int h, IntPtr data, out EvoIRFrameMetadata metadata);
+        public static extern int evo_irimager_multi_get_palette_image_metadata(uint camId, out int w, out int h, IntPtr data, out EvoIrFrameMetadata metadata);
 
         /**
          * @brief Accessor to an RGB palette image and a thermal image by reference for multiple cameras
@@ -340,7 +338,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_multi_get_thermal_palette_image(uint camId, int w_t, int h_t, ushort[,] data_t, int w_p, int h_p, IntPtr data_p);
+        public static extern int evo_irimager_multi_get_thermal_palette_image(uint camId, int wT, int hT, ushort[,] dataT, int wP, int hP, IntPtr dataP);
 
 
         /**
@@ -355,7 +353,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_multi_get_thermal_palette_image_metadata(uint camId, int w_t, int h_t, ushort[,] data_t, int w_p, int h_p, IntPtr data_p, out EvoIRFrameMetadata metadata);
+        public static extern int evo_irimager_multi_get_thermal_palette_image_metadata(uint camId, int wT, int hT, ushort[,] dataT, int wP, int hP, IntPtr dataP, out EvoIrFrameMetadata metadata);
 
         /**
          * @brief sets palette format for multiple cameras.
@@ -424,7 +422,7 @@ namespace Evocortex.irDirectBinding {
          * @return error code: 0 on success, -1 on error, -2 on fatal error (only TCP connection)
          */
         [DllImport("libirimager.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int evo_irimager_multi_set_temperature_range(uint camId, int t_min, int t_max);
+        public static extern int evo_irimager_multi_set_temperature_range(uint camId, int tMin, int tMax);
 
         /**
          * @brief sets radiation properties, i.e. emissivity and transmissivity parameters for multiple cameras (not implemented for TCP connection, usb mode only)

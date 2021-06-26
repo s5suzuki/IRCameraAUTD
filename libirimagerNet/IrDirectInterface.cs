@@ -3,18 +3,18 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-namespace Evocortex.irDirectBinding
+namespace libirimagerNet
 {
 
     /// <summary>
     /// OptrisColoringPalettes
     /// </summary>
-    public enum OptrisColoringPalette : int
+    public enum OptrisColoringPalette
     {
         AlarmBlue = 1,
         AlarmBlueHi = 2,
-        GrayBW = 3,
-        GrayWB = 4,
+        GrayBw = 3,
+        GrayWb = 4,
         AlarmGreen = 5,
         Iron = 6,
         IronHi = 7,
@@ -22,10 +22,10 @@ namespace Evocortex.irDirectBinding
         Rainbow = 9,
         RainbowHi = 10,
         AlarmRed = 11
-    };
+    }
 
     /// <summary>
-    /// OptrisPaletteScalingMethodes
+    /// OptrisPaletteScalingMethods
     /// </summary>
     public enum OptrisPaletteScalingMethod
     {
@@ -33,29 +33,20 @@ namespace Evocortex.irDirectBinding
         MinMax = 2,
         Sigma1 = 3,
         Sigma3 = 4
-    };
+    }
 
     /// <summary>
-    /// IRImager Interface for USB or TCP-Deamon connection
+    /// IRImager Interface for USB or TCP-Daemon connection
     /// </summary>
     public class IrDirectInterface
     {
         #region fields
 
-        static private IrDirectInterface _instance;
-        private bool _isConnected;
+        private static IrDirectInterface _instance;
         private bool _isAutomaticShutterActive;
         #endregion
 
         #region ctor
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public IrDirectInterface()
-        {
-        }
-
 
         #endregion
 
@@ -64,10 +55,7 @@ namespace Evocortex.irDirectBinding
         /// <summary>
         /// Singleton Instance for Access
         /// </summary>
-        static public IrDirectInterface Instance
-        {
-            get { return _instance ?? (_instance = new IrDirectInterface()); }
-        }
+        public static IrDirectInterface Instance => _instance ??= new IrDirectInterface();
 
         /// <summary>
         /// Activate or deactivates the automatic shutter
@@ -75,29 +63,20 @@ namespace Evocortex.irDirectBinding
         /// <exception cref="System.Exception">Thrown on error</exception>
         public bool IsAutomaticShutterActive
         {
-            get { return _isAutomaticShutterActive; }
+            get => _isAutomaticShutterActive;
             set
             {
-                if (_isAutomaticShutterActive != value)
-                {
-                    _isAutomaticShutterActive = value;
+                if (_isAutomaticShutterActive == value) return;
+                _isAutomaticShutterActive = value;
 
-                    CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_set_shutter_mode(InstanceId, value ? 1 : 0));
-
-                }
+                CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_set_shutter_mode(InstanceId, value ? 1 : 0));
             }
         }
 
         /// <summary>
         /// Returns current connection state
         /// </summary>
-        public bool IsConnected
-        {
-            get
-            {
-                return _isConnected;
-            }
-        }
+        public bool IsConnected { get; private set; }
 
         /// <summary>
         /// Returns unique instance id
@@ -112,7 +91,7 @@ namespace Evocortex.irDirectBinding
         /// Connected to this computer via USB
         /// </summary>
         /// <param name="xmlConfigPath">Path to xml config</param>
-        /// <param name="formatsDefPath">Path to folder containing formants.def (for default path use: "")</param>
+        /// <param name="formatsDefPath">Path to folder containing formats.def (for default path use: "")</param>
         /// <param name="logFilePath">Path for logfile (for default path use: "")</param>
         /// <exception cref="System.Exception">Thrown on error</exception>
         public void Connect(string xmlConfigPath, string formatsDefPath = "", string logFilePath = "")
@@ -128,15 +107,14 @@ namespace Evocortex.irDirectBinding
             }
 
             int error;
-            uint camId;
-            
-            if ((error = IrDirectInterfaceInvoke.evo_irimager_multi_usb_init(out camId, xmlConfigPath, formatsDefPath, logFilePath ?? "")) < 0)
+
+            if ((error = IrDirectInterfaceInvoke.evo_irimager_multi_usb_init(out var camId, xmlConfigPath, formatsDefPath, logFilePath ?? "")) < 0)
             {
                 throw new Exception($"Error at camera init: {error}");
             }
 
             InstanceId = camId;
-            _isConnected = true;
+            IsConnected = true;
             IsAutomaticShutterActive = true;
         }
 
@@ -144,21 +122,20 @@ namespace Evocortex.irDirectBinding
         /// <summary>
         /// Initializes the TCP connection to the daemon process (non-blocking)
         /// </summary>
-        /// <param name="hostname">Hostname or IP-Adress of the machine where the daemon process is running ("localhost" can be resolved)</param>
+        /// <param name="hostname">Hostname or IP-Address of the machine where the daemon process is running ("localhost" can be resolved)</param>
         /// <param name="port">Port of daemon, default 1337</param>
         /// <exception cref="System.Exception">Thrown on error</exception>
         public void Connect(string hostname, int port)
         {
             int error;
-            uint camId;
 
-            if ((error = IrDirectInterfaceInvoke.evo_irimager_multi_tcp_init(out camId, hostname, port)) < 0)
+            if ((error = IrDirectInterfaceInvoke.evo_irimager_multi_tcp_init(out var camId, hostname, port)) < 0)
             {
                 throw new Exception($"Error at camera init: {error}");
             }
 
             InstanceId = camId;
-            _isConnected = true;
+            IsConnected = true;
             IsAutomaticShutterActive = true;
         }
 
@@ -168,12 +145,10 @@ namespace Evocortex.irDirectBinding
         /// </summary>
         public void Disconnect()
         {
-            if (_isConnected)
-            {
-                CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_terminate(InstanceId));
+            if (!IsConnected) return;
+            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_terminate(InstanceId));
 
-                _isConnected = false;
-            }
+            IsConnected = false;
         }
 
         /// <summary>
@@ -183,15 +158,13 @@ namespace Evocortex.irDirectBinding
         /// </summary>
         /// <returns>Thermal Image as ushort[height, width]</returns>
         /// <exception cref="System.Exception">Thrown on error</exception>
-        public Tuple<ushort[,], EvoIRFrameMetadata> GetThermalImage()
+        public Tuple<ushort[,], EvoIrFrameMetadata> GetThermalImage()
         {
             CheckConnectionState();
-            int width, height;
-            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_thermal_image_size(InstanceId, out width, out height));
-            ushort[,] buffer = new ushort[height, width];
-            EvoIRFrameMetadata metadata;
-            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_thermal_image_metadata(InstanceId, out width, out height, buffer, out metadata));
-            return new Tuple<ushort[,], EvoIRFrameMetadata>(buffer, metadata);
+            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_thermal_image_size(InstanceId, out var width, out var height));
+            var buffer = new ushort[height, width];
+            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_thermal_image_metadata(InstanceId, out width, out height, buffer, out var metadata));
+            return new Tuple<ushort[,], EvoIrFrameMetadata>(buffer, metadata);
         }
 
         /// <summary>
@@ -199,21 +172,18 @@ namespace Evocortex.irDirectBinding
         /// </summary>
         /// <returns>RGB palette image</returns>
         /// /// <exception cref="System.Exception">Thrown on error</exception>
-        public Tuple<Bitmap, EvoIRFrameMetadata> GetPaletteImage()
+        public Tuple<Bitmap, EvoIrFrameMetadata> GetPaletteImage()
         {
             CheckConnectionState();
-            int width, height;
-            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_palette_image_size(InstanceId, out width, out height));
+            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_palette_image_size(InstanceId, out var width, out var height));
 
-            Bitmap image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+            var image = new Bitmap(width, height, PixelFormat.Format24bppRgb);
 
-            BitmapData bmpData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, image.PixelFormat);
+            var bmpData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.WriteOnly, image.PixelFormat);
 
-            EvoIRFrameMetadata metadata;
-
-            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_palette_image_metadata(InstanceId, out width, out height, bmpData.Scan0, out metadata));
+            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_palette_image_metadata(InstanceId, out width, out height, bmpData.Scan0, out var metadata));
             image.UnlockBits(bmpData);
-            return new Tuple<Bitmap, EvoIRFrameMetadata>(image, metadata);
+            return new Tuple<Bitmap, EvoIrFrameMetadata>(image, metadata);
         }
 
 
@@ -225,24 +195,20 @@ namespace Evocortex.irDirectBinding
         public ThermalPaletteImage GetThermalPaletteImage()
         {
             CheckConnectionState();
-            int paletteWidth, paletteHeight;
-            int thermalWidth, thermalHeight;
 
-            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_palette_image_size(InstanceId, out paletteWidth, out paletteHeight));
-            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_thermal_image_size(InstanceId, out thermalWidth, out thermalHeight));
+            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_palette_image_size(InstanceId, out var paletteWidth, out var paletteHeight));
+            CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_thermal_image_size(InstanceId, out var thermalWidth, out var thermalHeight));
 
-            Bitmap paletteImage = new Bitmap(paletteWidth, paletteHeight, PixelFormat.Format24bppRgb);
-            ushort[,] thermalImage = new ushort[thermalHeight, thermalWidth];
+            var paletteImage = new Bitmap(paletteWidth, paletteHeight, PixelFormat.Format24bppRgb);
+            var thermalImage = new ushort[thermalHeight, thermalWidth];
 
-            BitmapData bmpData = paletteImage.LockBits(new Rectangle(0, 0, paletteImage.Width, paletteImage.Height), ImageLockMode.WriteOnly, paletteImage.PixelFormat);
-
-            EvoIRFrameMetadata metadata;
+            var bmpData = paletteImage.LockBits(new Rectangle(0, 0, paletteImage.Width, paletteImage.Height), ImageLockMode.WriteOnly, paletteImage.PixelFormat);
 
             CheckResult(IrDirectInterfaceInvoke.evo_irimager_multi_get_thermal_palette_image_metadata(
                 InstanceId,
                 thermalWidth, thermalHeight, thermalImage,
                 paletteImage.Width, paletteImage.Height, bmpData.Scan0,
-                out metadata));
+                out var metadata));
 
             paletteImage.UnlockBits(bmpData);
 
@@ -319,7 +285,7 @@ namespace Evocortex.irDirectBinding
 
         #region private methodes
 
-        private void CheckResult(int result)
+        private static void CheckResult(int result)
         {
             if (result < 0)
             {
@@ -329,9 +295,9 @@ namespace Evocortex.irDirectBinding
 
         private void CheckConnectionState()
         {
-            if (!_isConnected)
+            if (!IsConnected)
             {
-                throw new Exception($"Camera is disconnected. Please connect first.");
+                throw new Exception("Camera is disconnected. Please connect first.");
             }
         }
 
@@ -339,7 +305,7 @@ namespace Evocortex.irDirectBinding
 
         ~IrDirectInterface()
         {
-            if (_isConnected)
+            if (IsConnected)
             {
                 Disconnect();
             }

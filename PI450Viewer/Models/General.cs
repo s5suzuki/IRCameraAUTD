@@ -14,7 +14,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using Evocortex.irDirectBinding;
+using libirimagerNet;
 using MaterialDesignThemes.Wpf;
 using PI450Viewer.Helpers;
 using Reactive.Bindings;
