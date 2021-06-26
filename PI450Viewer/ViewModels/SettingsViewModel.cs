@@ -4,7 +4,7 @@
  * Created Date: 29/03/2021
  * Author: Shun Suzuki
  * -----
- * Last Modified: 24/06/2021
+ * Last Modified: 26/06/2021
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2021 Hapis Lab. All rights reserved.
@@ -34,6 +34,7 @@ namespace PI450Viewer.ViewModels
         public ReactivePropertySlim<double> ManualPaletteMin { get; }
         public ReactivePropertySlim<double> ManualPaletteMax { get; }
         public ReactivePropertySlim<bool> LinkAUTDThermo { get; }
+        public ReactivePropertySlim<int> TimeoutMs { get; }
 
         public SettingsViewModel()
         {
@@ -49,6 +50,7 @@ namespace PI450Viewer.ViewModels
             ManualPaletteMax.Subscribe(p => ThermalCameraHandler.Instance.SetPaletteManualRange(ManualPaletteMin.Value, p));
 
             LinkAUTDThermo = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.LinkAUTDThermo);
+            TimeoutMs = General.Instance.ToReactivePropertySlimAsSynchronized(g => g.TimeoutMs);
         }
     }
 }
